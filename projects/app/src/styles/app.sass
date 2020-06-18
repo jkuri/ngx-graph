@@ -49,6 +49,9 @@ html, body
           cursor: pointer
           text-transform: uppercase
 
+  .main
+    margin: 70px 0
+
   .box
     display: block
     padding: 20px 10px
@@ -57,6 +60,36 @@ html, body
 
   .has-text-centered
     text-align: center
+
+  .field
+    display: inline-block
+    width: 100%
+    max-width: 100%
+    position: relative
+
+  .label
+    display: block
+    color: $text-label
+    font-size: 12px
+    font-weight: $weight-medium
+    margin: 15px 0 5px 0
+    text-transform: uppercase
+
+  .input
+    color: $text-input
+    font-size: 14px
+    height: $input-height
+    text-indent: 14px
+    border: 1px solid $border-input
+    outline: none
+    display: flex
+    align-items: center
+    justify-content: center
+    line-height: 100%
+    margin: 0
+    padding: 0 30px 0 0
+    width: 100%
+    border-radius: 4px
 
   &.is-dark
     background: $background-dark
