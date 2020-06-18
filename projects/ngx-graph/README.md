@@ -1,24 +1,44 @@
-# NgxGraph
+# Angular SVG Charts
 
-This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 9.1.11.
+This is a set of fully customizable Angular components for visualizing data.
 
-## Code scaffolding
+Currently it includes Line/Area Chart, Realtime Line/Area Chart and Pie Chart.
 
-Run `ng generate component component-name --project ngx-graph` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module --project ngx-graph`.
-> Note: Don't forget to add `--project ngx-graph` or else it will be added to the default project in your `angular.json` file. 
+## Running Demo Locally
 
-## Build
+You can run demo app locally, just follow this steps.
 
-Run `ng build ngx-graph` to build the project. The build artifacts will be stored in the `dist/` directory.
+```sh
+git clone https://github.com/jkuri/ngx-graph
+cd ngx-graph
+npm install // or yarn install
+npm start
+```
 
-## Publishing
+## Installation
 
-After building your library with `ng build ngx-graph`, go to the dist folder `cd dist/ngx-graph` and run `npm publish`.
+Install the npm package.
 
-## Running unit tests
+```sh
+npm i ngx-graph
+```
 
-Run `ng test ngx-graph` to execute the unit tests via [Karma](https://karma-runner.github.io).
+Import module that you need.
 
-## Further help
+```ts
+import { LineChartModule, RealtimeChartModule, PieChartModule } from 'ngx-graph';
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+@NgModule({
+  imports: [LineChartModule, RealtimeChartModule, PieChartModule]
+})
+```
+
+## Line / Area Chart
+
+### Preview
+
+Light version sample of Line / Area Chart:
+![Screenshot 2020-06-18 at 19 33 45](https://user-images.githubusercontent.com/1796022/85053421-c1a33500-b19a-11ea-83ab-904f9aa45b3a.png)
+
+Dark version sample of Line / Area Chart:
+![Screenshot 2020-06-18 at 19 33 53](https://user-images.githubusercontent.com/1796022/85053419-c0720800-b19a-11ea-853e-8ff0b3f3872e.png)

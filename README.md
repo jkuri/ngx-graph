@@ -1,27 +1,44 @@
-# NgxGraphs
+# Angular SVG Charts
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 9.1.3.
+This is a set of fully customizable Angular components for visualizing data.
 
-## Development server
+Currently it includes Line/Area Chart, Realtime Line/Area Chart and Pie Chart.
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+## Running Demo Locally
 
-## Code scaffolding
+You can run demo app locally, just follow this steps.
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+```sh
+git clone https://github.com/jkuri/ngx-graph
+cd ngx-graph
+npm install // or yarn install
+npm start
+```
 
-## Build
+## Installation
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+Install the npm package.
 
-## Running unit tests
+```sh
+npm i ngx-graph
+```
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+Import module that you need.
 
-## Running end-to-end tests
+```ts
+import { LineChartModule, RealtimeChartModule, PieChartModule } from 'ngx-graph';
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+@NgModule({
+  imports: [LineChartModule, RealtimeChartModule, PieChartModule]
+})
+```
 
-## Further help
+## Line / Area Chart
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+### Preview
+
+Light version sample of Line / Area Chart:
+![Screenshot 2020-06-18 at 19 33 45](https://user-images.githubusercontent.com/1796022/85053421-c1a33500-b19a-11ea-83ab-904f9aa45b3a.png)
+
+Dark version sample of Line / Area Chart:
+![Screenshot 2020-06-18 at 19 33 53](https://user-images.githubusercontent.com/1796022/85053419-c0720800-b19a-11ea-853e-8ff0b3f3872e.png)
