@@ -10,13 +10,18 @@ import { DemoLineAreaChartComponent } from './components/demo-line-area-chart/de
 import { DemoRealtimeChartComponent } from './components/demo-realtime-chart/demo-realtime-chart.component';
 import { DemoPieChartComponent } from './components/demo-pie-chart/demo-pie-chart.component';
 import { DataService } from './providers/data.service';
+import { HeaderComponent } from './components/header/header.component';
+import { ThemeService } from './providers/theme.service';
+import { ToggleComponent } from './components/toggle/toggle.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     DemoLineAreaChartComponent,
     DemoRealtimeChartComponent,
-    DemoPieChartComponent
+    DemoPieChartComponent,
+    HeaderComponent,
+    ToggleComponent
   ],
   imports: [
     BrowserModule,
@@ -27,7 +32,7 @@ import { DataService } from './providers/data.service';
     RealtimeChartModule,
     PieChartModule
   ],
-  providers: [DataService],
+  providers: [DataService, ThemeService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

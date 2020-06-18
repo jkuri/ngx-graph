@@ -1,0 +1,21 @@
+<header class="header">
+  <div class="container">
+    <div class="columns">
+      <div class="column is-10 is-offset-1">
+        <div class="header-container">
+          <div class="header-left"></div>
+          <div class="header-center">
+            <nav class="nav-main">
+              <a [routerLink]="['/line']">Line & Area Chart</a>
+              <a [routerLink]="['/realtime']">Realtime Chart</a>
+              <a [routerLink]="['/pie']">Pie Chart</a>
+            </nav>
+          </div>
+          <div class="header-right">
+            <app-toggle name="is_dark" [(ngModel)]="isDark" (ngModelChange)="setTheme()"></app-toggle>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>

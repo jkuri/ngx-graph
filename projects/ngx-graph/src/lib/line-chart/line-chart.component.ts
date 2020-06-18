@@ -93,7 +93,7 @@ export class LineChartComponent implements OnInit, OnDestroy, DoCheck {
     this.subs = new Subscription();
     this.differEvents = new EventEmitter<void>();
     this.events = new EventEmitter<LineChartEvent>();
-    this.subs.add(this.differEvents.pipe(debounceTime(100)).subscribe(() => this.drawChart()));
+    this.subs.add(this.differEvents.pipe().subscribe(() => this.drawChart()));
   }
 
   ngOnInit() {
@@ -236,12 +236,11 @@ export class LineChartComponent implements OnInit, OnDestroy, DoCheck {
             const prev = select(el[x]).attr('d');
             const next = line.line(props.data as any);
             return interpolatePath(prev, next);
-          })
-          .on('end', () => {
-            if (line.markers) {
-              this.drawMarkers(line, props);
-            }
           });
+
+        if (line.markers) {
+          this.drawMarkers(line, props);
+        }
       } else {
         line.linePath.attr('d', line.line(props.data as any));
         if (line.markers) {

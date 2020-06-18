@@ -13,16 +13,63 @@
 @import 'datepicker'
 
 html, body
-  background: $background-light
+  background: $background
   color: $text-primary
+  height: 100%
   font-family: BlinkMacSystemFont, -apple-system, 'Segoe UI', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif
   -webkit-font-smoothing: antialiased
   -webkit-tap-highlight-color: transparent
 
-  .hero
+  .header
+    background: $white
+    height: 70px
+    border-bottom: 1px solid $border-default
+    display: flex
+    align-items: center
+    box-shadow: $box-shadow-light
 
-    .hero-head
-      padding-top: 100px
+    .header-container
+      display: flex
+      align-items: center
+      justify-content: space-between
+
+      .header-left, .header-right, .header-center
+        display: flex
+        align-items: center
+
+        a
+          margin-left: 35px
+          position: relative
+          z-index: 10
+          font-size: 15px
+          font-weight: $weight-medium
+          color: $text-primary
+          text-decoration: none
+          background-color: transparent
+          cursor: pointer
+
+  .box
+    display: block
+    padding: 20px 10px
+    border-radius: 6px
+    box-shadow: $box-shadow
 
   .has-text-centered
     text-align: center
+
+  &.is-dark
+    background: $background-dark
+    color: #BEC6E0
+
+    .header
+      background: #232B4D
+      border-bottom: none
+
+      .header-left, .header-right, .header-center
+
+        a
+          color: #BEC6E0
+
+    .box
+      background: #323B64
+      box-shadow: 0 9px 14px -6px rgba(23,30,61,0.59)
