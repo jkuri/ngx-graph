@@ -36,9 +36,7 @@
               "projects/ngx-graph/tsconfig.lib.json",
               "projects/ngx-graph/tsconfig.spec.json"
             ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
+            "exclude": ["**/node_modules/**"]
           }
         }
       }
@@ -65,11 +63,14 @@
             "aot": true,
             "assets": [
               "projects/app/src/favicon.ico",
-              "projects/app/src/assets"
+              "projects/app/src/assets",
+              {
+                "glob": "**/*",
+                "input": "./node_modules/@fortawesome/fontawesome-free/webfonts",
+                "output": "./assets/fonts/fa"
+              }
             ],
-            "styles": [
-              "projects/app/src/styles.sass"
-            ],
+            "styles": ["projects/app/src/styles/app.sass"],
             "scripts": []
           },
           "configurations": {
@@ -129,11 +130,14 @@
             "karmaConfig": "projects/app/karma.conf.js",
             "assets": [
               "projects/app/src/favicon.ico",
-              "projects/app/src/assets"
+              "projects/app/src/assets",
+              {
+                "glob": "**/*",
+                "input": "./node_modules/@fortawesome/fontawesome-free/webfonts",
+                "output": "./assets/fonts/fa"
+              }
             ],
-            "styles": [
-              "projects/app/src/styles.sass"
-            ],
+            "styles": ["projects/app/src/styles/app.sass"],
             "scripts": []
           }
         },
@@ -145,9 +149,7 @@
               "projects/app/tsconfig.spec.json",
               "projects/app/e2e/tsconfig.json"
             ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
+            "exclude": ["**/node_modules/**"]
           }
         },
         "e2e": {
@@ -163,6 +165,13 @@
           }
         }
       }
-    }},
-  "defaultProject": "ngx-graph"
+    }
+  },
+  "defaultProject": "ngx-graph",
+  "schematics": {
+    "@schematics/angular:component": {
+      "styleext": "sass",
+      "skipTests": true
+    }
+  }
 }
