@@ -4,6 +4,8 @@ This is a set of fully customizable Angular components for visualizing data.
 
 Currently it includes Line/Area Chart, Realtime Line/Area Chart and Pie Chart.
 
+Check live [demo](https://ngx-graph.jankuri.com).
+
 ## Running Demo Locally
 
 You can run demo app locally, just follow this steps.
@@ -130,6 +132,51 @@ data: LineChartData[] = [
 ```
 
 For a full list of options please check [here](https://github.com/jkuri/ngx-graph/blob/master/projects/ngx-graph/src/lib/line-chart/line-chart.class.ts#L233-L246).
+
+## Real-Time Chart
+
+### Preview
+
+![ngx-graph-realtime](https://user-images.githubusercontent.com/1796022/85064398-ccb29100-b1ab-11ea-9729-c90cd2de98e6.gif)
+
+### Usage
+
+For above sample you can check source code [here](https://github.com/jkuri/ngx-graph/tree/master/projects/app/src/app/components/demo-realtime-chart).
+
+In your template:
+
+```html
+<ngx-realtime-chart [options]="realtimeChartOptions" [data]="realtimeChartData"></ngx-realtime-chart>
+```
+
+In your component:
+
+```ts
+import { interval } from 'rxjs';
+import { timeInterval } from 'rxjs/operators';
+import { RealtimeChartSettings } from 'ngx-graph';
+
+realtimeChartOptions: RealtimeChartSettings = {
+  height: 300,
+  margin: { left: 40 },
+  lines: [
+    { color: '#34B77C', lineWidth: 3, area: true, areaColor: '#34B77C', areaOpacity: .2 }
+  ],
+  xGrid: { tickPadding: 15, tickNumber: 5 },
+  yGrid: { min: 0, max: 100, tickNumber: 5, tickFormat: (v: number) => `${v}%`, tickPadding: 25 }
+};
+
+ngOnInit(): void {
+  // push new value to real-time chart every second (example)
+  interval(1000)
+    .pipe(timeInterval())
+    .subscribe(() => {
+      this.realtimeChartData[0].push({ date: new Date(), value: this.data.randomInt(0, 100) });
+    })
+}
+```
+
+For full list of options please check [here](https://github.com/jkuri/ngx-graph/blob/master/projects/ngx-graph/src/lib/realtime-chart/realtime-chart.interface.ts#L47-L56).
 
 ## License
 
