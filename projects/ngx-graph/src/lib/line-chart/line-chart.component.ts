@@ -6,7 +6,7 @@ import {
   Input,
   KeyValueDiffer,
   KeyValueDiffers,
-  NgZone,
+  ChangeDetectorRef,
   OnDestroy,
   OnInit,
   Output,
@@ -87,7 +87,7 @@ export class LineChartComponent implements OnInit, OnDestroy, DoCheck {
   constructor(
     public elementRef: ElementRef,
     public differs: KeyValueDiffers,
-    public ngZone: NgZone,
+    public ref: ChangeDetectorRef,
     public resizeService: ResizeService
   ) {
     this.subs = new Subscription();
@@ -236,14 +236,15 @@ export class LineChartComponent implements OnInit, OnDestroy, DoCheck {
             const prev = select(el[x]).attr('d');
             const next = line.line(props.data as any);
             return interpolatePath(prev, next);
+          })
+          .on('end', () => {
+            if (props.markers) {
+              this.drawMarkers(line, props);
+            }
           });
-
-        if (line.markers) {
-          this.drawMarkers(line, props);
-        }
       } else {
         line.linePath.attr('d', line.line(props.data as any));
-        if (line.markers) {
+        if (props.markers) {
           this.drawMarkers(line, props);
         }
       }
@@ -461,6 +462,8 @@ export class LineChartComponent implements OnInit, OnDestroy, DoCheck {
 
   private mouseEvents(): void {
     if (!this.props.interaction.enable) {
+      this.rect.on('mouseout', null).on('mouseover', null).on('click', null).on('mousemove', null);
+      this.svg.on('mouseout', null);
       return;
     }
 
@@ -491,7 +494,8 @@ export class LineChartComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   private setMouseEventsSelectors(display: null | 'none' = null): void {
-    this.ngZone.runTask(() => this.tooltip.visible = display === 'none' ? false : true);
+    this.tooltip.visible = display === 'none' ? false : true;
+    this.ref.detectChanges();
     this.mouseG.style('display', display);
     this.crosshairG.style('display', display);
   }
@@ -528,7 +532,7 @@ export class LineChartComponent implements OnInit, OnDestroy, DoCheck {
 
     const [tx, ty] = [x, yarr.reduce((p, c) => p + c, 0) / yarr.length];
     if (this.props.interaction.tooltip) {
-      this.ngZone.runOutsideAngular(() => this.showTooltip(tx, ty, index));
+      this.showTooltip(tx, ty, index);
     }
   }
 
@@ -575,35 +579,38 @@ export class LineChartComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   private showTooltip(left: number, top: number, i: number): void {
-    this.ngZone.runTask(() => {
-      this.tooltip.visible = true;
-      this.tooltip.title = this.data[0] && this.data[0].data[i] ?
-        getFormattedValue(this.data[0].data[i].x, this.props.interaction.xFormat) : '';
-      this.tooltip.items = this.data
-        .reduce((acc, curr) => curr.data[i] ? acc.concat({ color: curr.markerColor, id: curr.id, value: curr.data[i].y }) : acc, [])
-        .map(x => ({ ...x, color: hexToRgb(x.color) }));
+    this.tooltip.visible = true;
+    this.tooltip.title = this.data[0] && this.data[0].data[i] ?
+      getFormattedValue(this.data[0].data[i].x, this.props.interaction.xFormat) : '';
+    this.tooltip.items = this.data
+      .reduce((acc, curr) => curr.data[i] ? acc.concat({ color: curr.markerColor, id: curr.id, value: curr.data[i].y }) : acc, [])
+      .map(x => ({ ...x, color: hexToRgb(x.color) }));
 
-      const tooltipEl = select(this.el).select('.tooltip-container');
+    const tooltipEl = select(this.el).select('.tooltip-container');
 
-      tooltipEl
-        .on('mousemove', () => {
-          this.tooltip.visible = true;
-          this.mouseG.style('display', null);
-          this.crosshairG.style('display', null);
-          this.mouseMove(this.rect.node());
-        })
-        .on('click', () => this.onMouseClick(this.rect.node()))
-        .on('mouseout', () => this.tooltip.visible = false);
+    tooltipEl
+      .on('mousemove', () => {
+        this.tooltip.visible = true;
+        this.mouseG.style('display', null);
+        this.crosshairG.style('display', null);
+        this.mouseMove(this.rect.node());
+        this.ref.detectChanges();
+      })
+      .on('click', () => this.onMouseClick(this.rect.node()))
+      .on('mouseout', () => {
+        this.tooltip.visible = false;
+        this.ref.detectChanges();
+      });
 
-      let l = left + this.props.margin.left + 20;
-      tooltipEl.style('left', `${l}px`).style('top', `${top}px`);
+    let l = left + this.props.margin.left + 20;
+    tooltipEl.style('left', `${l}px`).style('top', `${top}px`);
 
-      const rect = (tooltipEl.node() as any).getBoundingClientRect();
-      if (rect.left + rect.width >= window.innerWidth) {
-        l = left - rect.width + this.props.margin.left - 20;
-      }
+    const rect = (tooltipEl.node() as any).getBoundingClientRect();
+    if (rect.left + rect.width >= window.innerWidth) {
+      l = left - rect.width + this.props.margin.left - 20;
+    }
 
-      tooltipEl.style('left', `${l}px`).style('top', `${top}px`);
-    });
+    tooltipEl.style('left', `${l}px`).style('top', `${top}px`);
+    this.ref.detectChanges();
   }
 }
