@@ -50,49 +50,43 @@ This is sample usage of preview above with full source accessible [here](https:/
 In template:
 
 ```html
-<ngx-line-chart [props]="props" [data]="data"></ngx-line-chart>
+<ngx-line-chart [options]="options" [data]="data"></ngx-line-chart>
 ```
 
 In your component:
 
 ```ts
-import {
-  LineChartProperties,
-  LineChartScaleProperties,
-  GridProperties,
-  LineChartData,
-  InteractionProperties
-} from 'ngx-graph';
+import { LineChartData, LineChartOptions } from 'ngx-graph';
 
-props: LineChartProperties = new LineChartProperties({
+options: LineChartOptions = {
   height: 300,
   margin: { top: 20, right: 40, bottom: 80, left: 60 },
-  yScale: new LineChartScaleProperties({ min: 0, max: 3000 }),
-  xGrid: new GridProperties({
+  yScale: { min: 0, max: 3000 },
+  xGrid: {
     opacity: .4,
     textColor: '#333'
-  }),
-  yGrid: new GridProperties({
+  },
+  yGrid: {
     tickPadding: 13,
     tickFormat: (num: number) => format('~s')(num) + ' €',
     tickTextAnchor: 'end',
     tickNumber: 5,
     opacity: .4,
     textColor: '#333'
-  }),
+  },
   transitions: true,
   transitionDuration: 400,
   legend: true,
   legendPosition: 'bottom',
   legendMargin: { top: 0, right: 0, left: 0, bottom: 0 },
   initialTransition: false,
-  interaction: new InteractionProperties({
+  interaction: {
     axisLine: true,
     axisLineSize: 4,
     axisLineColor: '#eef0f7',
     tooltip: true,
-  })
-});
+  }
+};
 
 data: LineChartData[] = [
   new LineChartData({
