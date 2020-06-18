@@ -9,7 +9,9 @@ import { ThemeService, Theme } from '../../providers/theme.service';
 export class HeaderComponent implements OnInit {
   isDark: boolean;
 
-  constructor(public themeService: ThemeService) { }
+  constructor(public themeService: ThemeService) {
+    this.isDark = this.themeService.getTheme === 'dark';
+  }
 
   ngOnInit(): void {
     this.setTheme();
