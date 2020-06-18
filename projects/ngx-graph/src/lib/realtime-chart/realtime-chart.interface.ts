@@ -1,7 +1,5 @@
-import { Colors } from '../../models/color';
-import { CurveType, curveTypeMapping } from '../shared/chart.interface';
-
-export { CurveType, curveTypeMapping };
+import { Colors } from '../shared/color';
+import { CurveType } from '../shared/chart.interface';
 
 export interface RealtimeChartData {
   date: Date;

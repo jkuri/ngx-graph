@@ -10,7 +10,8 @@ import { interrupt, transition } from 'd3-transition';
 import { Subscription, timer } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { ResizeService } from '../shared/resize.service';
-import { curveTypeMapping, defaultRealtimeChartSettings, RealtimeChartData, RealtimeChartSettings } from './realtime-chart.interface';
+import { curveTypeMapping } from '../shared/chart.interface';
+import { defaultRealtimeChartSettings, RealtimeChartData, RealtimeChartSettings } from './realtime-chart.interface';
 
 @Component({
   selector: 'ngx-realtime-chart',

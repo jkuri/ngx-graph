@@ -15,12 +15,8 @@ import {
 import { CurveType, curveTypeMapping } from '../shared/chart.interface';
 
 export type ScaleType = ScalePoint<string> | ScaleLinear<number, number> | ScaleTime<number, number>;
-
 export type DataType = string | number | Date;
-
 export type FormatType = (v: number | Date | string | { valueOf(): number }) => string;
-
-export { CurveType, curveTypeMapping };
 
 export interface LineChartScaleType {
   type?: 'linear' | 'time' | 'point';

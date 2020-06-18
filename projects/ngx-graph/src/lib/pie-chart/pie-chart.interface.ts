@@ -1,4 +1,4 @@
-import { Colors } from '../../models/color';
+import { Colors } from '../shared/color';
 
 export interface PieChartData {
   id: string;
