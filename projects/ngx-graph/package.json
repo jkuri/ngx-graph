@@ -1,6 +1,30 @@
 {
   "name": "ngx-graph",
-  "version": "0.0.1",
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jkuri/ngx-graph.git"
+  },
+  "authors": [
+    "Jan Kuri <jkuri88@gmail.com>"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jkuri/ngx-graph/issues"
+  },
+  "homepage": "https://ngx-graph.jankuri.com",
+  "keywords": [
+    "charts",
+    "angular",
+    "realtime",
+    "real-time",
+    "svg",
+    "d3",
+    "ng",
+    "line",
+    "area",
+    "chart"
+  ],
   "peerDependencies": {
     "@angular/common": "^9.1.11",
     "@angular/core": "^9.1.11"
