@@ -1,11 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import {
-  LineChartProperties,
-  LineChartScaleProperties,
-  GridProperties,
-  LineChartData,
-  InteractionProperties
-} from 'ngx-graph';
+import { LineChartData, LineChartOptions } from 'ngx-graph';
 import { format } from 'd3-format';
 import { DataService } from '../../providers/data.service';
 import { ThemeService } from '../../providers/theme.service';
@@ -19,46 +13,46 @@ import { Subscription } from 'rxjs';
 export class DemoLineAreaChartComponent implements OnInit, OnDestroy {
   sub = new Subscription();
 
-  lineChartProps: LineChartProperties;
-  lineChartPropsBright: LineChartProperties = new LineChartProperties({
+  lineChartOptions: LineChartOptions;
+  lineChartOptionsBright: LineChartOptions = {
     height: 300,
     margin: { top: 20, right: 40, bottom: 80, left: 60 },
-    yScale: new LineChartScaleProperties({ min: 0, max: 3000 }),
-    xGrid: new GridProperties({
+    yScale: { min: 0, max: 3000 },
+    xGrid: {
       opacity: .4,
       textColor: '#333'
-    }),
-    yGrid: new GridProperties({
+    },
+    yGrid: {
       tickPadding: 13,
       tickFormat: (num: number) => format('~s')(num) + ' €',
       tickTextAnchor: 'end',
       tickNumber: 5,
       opacity: .4,
       textColor: '#333'
-    }),
+    },
     transitions: true,
     transitionDuration: 400,
     legend: true,
     legendPosition: 'bottom',
     legendMargin: { top: 0, right: 0, left: 0, bottom: 0 },
     initialTransition: false,
-    interaction: new InteractionProperties({
+    interaction: {
       axisLine: true,
       axisLineSize: 4,
       axisLineColor: '#eef0f7',
       tooltip: true,
-    })
-  });
-  lineChartPropsDark: LineChartProperties = new LineChartProperties({
+    }
+  };
+  lineChartOptionsDark: LineChartOptions = {
     height: 300,
     margin: { top: 20, right: 40, bottom: 80, left: 60 },
-    yScale: new LineChartScaleProperties({ min: 0, max: 3000 }),
-    xGrid: new GridProperties({
+    yScale: { min: 0, max: 3000 },
+    xGrid: {
       color: '#BEC6E0',
       opacity: .05,
       textColor: '#BEC6E0'
-    }),
-    yGrid: new GridProperties({
+    },
+    yGrid: {
       tickPadding: 13,
       tickFormat: (num: number) => format('~s')(num) + ' €',
       tickTextAnchor: 'end',
@@ -66,17 +60,17 @@ export class DemoLineAreaChartComponent implements OnInit, OnDestroy {
       color: '#BEC6E0',
       opacity: .05,
       textColor: '#BEC6E0'
-    }),
+    },
     transitions: true,
     transitionDuration: 400,
     legend: true,
     legendPosition: 'bottom',
     legendMargin: { top: 0, right: 0, left: 0, bottom: 0 },
     initialTransition: false,
-    interaction: new InteractionProperties({
+    interaction: {
       enable: false
-    })
-  });
+    }
+  };
 
   lineChartData: LineChartData[];
   lineChartDataBright = [
@@ -156,7 +150,7 @@ export class DemoLineAreaChartComponent implements OnInit, OnDestroy {
     this.sub.add(
       this.themeService.theme
         .subscribe(theme => {
-          this.lineChartProps = theme === 'bright' ? this.lineChartPropsBright : this.lineChartPropsDark;
+          this.lineChartOptions = theme === 'bright' ? this.lineChartOptionsBright : this.lineChartOptionsDark;
           this.lineChartData = theme === 'bright' ? this.lineChartDataBright : this.lineChartDataDark;
         })
     );

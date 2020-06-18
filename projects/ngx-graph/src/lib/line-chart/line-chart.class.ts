@@ -18,25 +18,25 @@ export type ScaleType = ScalePoint<string> | ScaleLinear<number, number> | Scale
 export type DataType = string | number | Date;
 export type FormatType = (v: number | Date | string | { valueOf(): number }) => string;
 
-export interface LineChartScaleType {
+export interface LineChartScaleOptions {
   type?: 'linear' | 'time' | 'point';
   min?: number | 'auto' | Date;
   max?: number | 'auto' | Date;
 }
 
-export class LineChartScaleProperties implements LineChartScaleType {
+export class LineChartScaleProperties implements LineChartScaleOptions {
   type?: 'linear' | 'time' | 'point';
   min?: number | 'auto' | Date;
   max?: number | 'auto' | Date;
 
-  constructor(o: LineChartScaleType = {}) {
+  constructor(o: LineChartScaleOptions = {}) {
     this.type = o.type;
     this.min = o.min;
     this.max = o.max;
   }
 }
 
-export interface GridType {
+export interface GridOptions {
   enable?: boolean;
   color?: string;
   size?: number;
@@ -54,7 +54,7 @@ export interface GridType {
   values?: DataType[];
 }
 
-export class GridProperties implements GridType {
+export class GridProperties implements GridOptions {
   enable?: boolean;
   color?: string;
   size?: number;
@@ -71,7 +71,7 @@ export class GridProperties implements GridType {
   tickTextAnchor?: 'middle' | 'start' | 'end';
   values?: DataType[];
 
-  constructor(o: GridType = {}) {
+  constructor(o: GridOptions = {}) {
     this.enable = typeof o.enable !== 'undefined' ? o.enable : true;
     this.color = o.color || DEFAULT_GRID_COLOR;
     this.size = o.size || 2;
@@ -131,7 +131,7 @@ export class LineChartEventMouseMove extends LineChartEventClick {
 export class LineChartEventMouseLeave extends LineChartEventMouseMove { }
 export class LineChartEventMouseEnter extends LineChartEventMouseMove { }
 
-export interface InteractionType {
+export interface InteractionOptions {
   enable?: boolean;
   tooltip?: boolean;
   axisLine?: boolean;
@@ -143,7 +143,7 @@ export interface InteractionType {
   yFormat?: FormatType;
 }
 
-export class InteractionProperties {
+export class InteractionProperties implements InteractionOptions {
   enable?: boolean;
   tooltip?: boolean;
   axisLine?: boolean;
@@ -154,7 +154,7 @@ export class InteractionProperties {
   xFormat?: FormatType;
   yFormat?: FormatType;
 
-  constructor(o: InteractionType = {}) {
+  constructor(o: InteractionOptions = {}) {
     this.enable = typeof o.enable !== 'undefined' ? o.enable : true;
     this.tooltip = typeof o.tooltip !== 'undefined' ? o.tooltip : true;
     this.axisLine = typeof o.axisLine !== 'undefined' ? o.axisLine : true;
@@ -212,21 +212,21 @@ export class LineChartData implements LineChartDataType {
   }
 }
 
-export interface LineChartType {
+export interface LineChartOptions {
   width?: number;
   height?: number;
   margin?: { top: number, right: number, bottom: number, left: number };
-  xScale?: LineChartScaleProperties;
-  yScale?: LineChartScaleProperties;
-  xGrid?: GridProperties;
-  yGrid?: GridProperties;
+  xScale?: LineChartScaleOptions;
+  yScale?: LineChartScaleOptions;
+  xGrid?: GridOptions;
+  yGrid?: GridOptions;
   transitions?: boolean;
   transitionDuration?: number;
   initialTransition?: boolean;
   legend?: boolean;
   legendPosition?: 'top' | 'top-right' | 'top-left' | 'right' | 'bottom' | 'bottom-right' | 'bottom-left' | 'left';
   legendMargin?: { top: number, right: number, bottom: number, left: number };
-  interaction?: InteractionProperties;
+  interaction?: InteractionOptions;
 }
 
 export class LineChartProperties {
@@ -245,22 +245,21 @@ export class LineChartProperties {
   legendMargin?: { top: number, right: number, bottom: number, left: number };
   interaction?: InteractionProperties;
 
-  constructor(o: LineChartType = {}) {
+  constructor(o: LineChartOptions = {}) {
     this.width = o.width || null;
     this.height = o.height || null;
     this.margin = o.margin || { top: 20, right: 20, bottom: 30, left: 50 };
-    this.xScale = o.xScale || new LineChartScaleProperties();
-    this.yScale = o.yScale || new LineChartScaleProperties();
-    this.xGrid = o.xGrid || new GridProperties();
-    this.yGrid = o.yGrid || new GridProperties();
+    this.xScale = new LineChartScaleProperties(o.xScale || {});
+    this.yScale = new LineChartScaleProperties(o.yScale || {});
+    this.xGrid = new GridProperties(o.xGrid || {});
+    this.yGrid = new GridProperties(o.yGrid || {});
     this.transitions = typeof o.transitions !== 'undefined' ? o.transitions : true;
     this.transitionDuration = typeof o.transitionDuration !== 'undefined' ? o.transitionDuration : 400;
     this.initialTransition = typeof o.initialTransition !== 'undefined' ? o.initialTransition : true;
     this.legend = typeof o.legend !== 'undefined' ? o.legend : false;
     this.legendPosition = o.legendPosition || 'bottom-left';
     this.legendMargin = o.legendMargin || { top: 0, right: 0, bottom: 5, left: 5 };
-    this.interaction = o.interaction && o.interaction instanceof InteractionProperties
-      ? o.interaction : new InteractionProperties(o.interaction);
+    this.interaction = new InteractionProperties(o.interaction || {});
   }
 }
 

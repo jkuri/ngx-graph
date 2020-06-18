@@ -1,14 +1,16 @@
-$green: #48bb78
+@import 'colours'
+@import 'variables'
+
 $white: #ffffff
 $toggle-background: #DFE1E5
-$toggle-enabled-background: $green
 
 \:host
-  width: 38px
+  width: 45px
   height: 20px
+  margin: 0 5px
 
 .toggle-button
-  width: 30px
+  width: 45px
   height: 20px
   background: $toggle-background
   border-radius: 83px
@@ -18,10 +20,10 @@ $toggle-enabled-background: $green
   display: inline-block
 
   &.enabled
-    background: $green
+    background: #323B64
 
     .toggle-circle
-      left: 12px
+      left: 25px
 
   .toggle-circle
     border-radius: 83px

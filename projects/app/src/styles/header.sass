@@ -1,0 +1,51 @@
+.header
+  background: $white
+  height: 70px
+  border-bottom: 1px solid $border-default
+  display: flex
+  align-items: center
+  box-shadow: $box-shadow-light
+
+  .header-container
+    display: flex
+    align-items: center
+    justify-content: space-between
+
+    .header-left, .header-right, .header-center
+      display: flex
+      align-items: center
+
+      a
+        position: relative
+        z-index: 10
+        font-size: 14px
+        font-weight: $weight-semibold
+        color: $text-primary
+        text-decoration: none
+        background-color: transparent
+        cursor: pointer
+        text-transform: uppercase
+
+        i
+          font-size: 24px
+
+    .header-center
+      a
+        margin: 0 15px
+
+    .header-right
+      a
+        margin-left: 15px
+
+body
+
+  &.is-dark
+
+    .header
+      background: #232B4D
+      border-bottom: none
+
+      .header-left, .header-right, .header-center
+
+        a
+          color: #BEC6E0

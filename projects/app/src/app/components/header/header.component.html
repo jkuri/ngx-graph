@@ -3,7 +3,11 @@
     <div class="columns">
       <div class="column is-10 is-offset-1">
         <div class="header-container">
-          <div class="header-left"></div>
+          <div class="header-left">
+            <a [routerLink]="['/']">
+              <i class="fab fa-angular"></i>
+            </a>
+          </div>
           <div class="header-center">
             <nav class="nav-main">
               <a [routerLink]="['/line']">Line & Area Chart</a>
@@ -12,7 +16,12 @@
             </nav>
           </div>
           <div class="header-right">
+            <span>light</span>
             <app-toggle name="is_dark" [(ngModel)]="isDark" (ngModelChange)="setTheme()"></app-toggle>
+            <span>dark</span>
+            <a href="https://github.com/jkuri/ngx-graph" target="_blank">
+              <i class="fab fa-github"></i>
+            </a>
           </div>
         </div>
       </div>

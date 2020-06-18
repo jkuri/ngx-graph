@@ -34,7 +34,8 @@ import {
   LineChartEventMouseLeave,
   LineChartEventMouseMove,
   LineChartProperties,
-  ScaleType
+  ScaleType,
+  LineChartOptions
 } from './line-chart.class';
 
 interface LineType {
@@ -53,11 +54,12 @@ interface LineType {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LineChartComponent implements OnInit, OnDestroy, DoCheck {
-  @Input() props: LineChartProperties;
+  @Input() options: LineChartOptions;
   @Input() data: LineChartData[];
   @Output() events: EventEmitter<LineChartEvent>;
 
   el: HTMLElement;
+  props: LineChartProperties;
   inited: boolean;
   differ: KeyValueDiffer<any, any>;
   dataDiffers: { id: string, differ: KeyValueDiffer<any, any> }[];
@@ -98,7 +100,7 @@ export class LineChartComponent implements OnInit, OnDestroy, DoCheck {
 
   ngOnInit() {
     this.el = this.elementRef.nativeElement.querySelector('.line-chart-container');
-    this.differ = this.differs.find(this.props).create();
+    this.differ = this.differs.find(this.options).create();
     this.dataDiffers = this.data.map((data) => {
       return { id: data.id, differ: this.differs.find(data).create() };
     });
@@ -131,7 +133,8 @@ export class LineChartComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   ngDoCheck() {
-    if (this.differ.diff(this.props)) {
+    if (this.differ.diff(this.options)) {
+      this.props = new LineChartProperties(this.options);
       this.differEvents.emit();
       return;
     }

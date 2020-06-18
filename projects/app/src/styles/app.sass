@@ -2,11 +2,16 @@
 
 @import 'colours'
 @import 'variables'
+@import '~@fortawesome/fontawesome-free/scss/fontawesome'
+@import '~@fortawesome/fontawesome-free/scss/solid'
+@import '~@fortawesome/fontawesome-free/scss/regular'
+@import '~@fortawesome/fontawesome-free/scss/brands'
 @import '~bulma/sass/base/minireset'
 @import '~bulma/sass/utilities/all'
 @import '~bulma/sass/elements/container'
 @import '~bulma/sass/grid/columns'
 @import 'typography'
+@import 'header'
 @import 'hero'
 @import 'form'
 @import 'terminal'
@@ -19,35 +24,6 @@ html, body
   font-family: $font-family-roboto
   -webkit-font-smoothing: antialiased
   -webkit-tap-highlight-color: transparent
-
-  .header
-    background: $white
-    height: 70px
-    border-bottom: 1px solid $border-default
-    display: flex
-    align-items: center
-    box-shadow: $box-shadow-light
-
-    .header-container
-      display: flex
-      align-items: center
-      justify-content: space-between
-
-      .header-left, .header-right, .header-center
-        display: flex
-        align-items: center
-
-        a
-          margin-left: 35px
-          position: relative
-          z-index: 10
-          font-size: 14px
-          font-weight: $weight-semibold
-          color: $text-primary
-          text-decoration: none
-          background-color: transparent
-          cursor: pointer
-          text-transform: uppercase
 
   .main
     margin: 70px 0
@@ -94,15 +70,6 @@ html, body
   &.is-dark
     background: $background-dark
     color: #BEC6E0
-
-    .header
-      background: #232B4D
-      border-bottom: none
-
-      .header-left, .header-right, .header-center
-
-        a
-          color: #BEC6E0
 
     .box
       background: #323B64

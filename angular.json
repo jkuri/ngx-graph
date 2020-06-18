@@ -71,6 +71,9 @@
               }
             ],
             "styles": ["projects/app/src/styles/app.sass"],
+            "stylePreprocessorOptions": {
+              "includePaths": ["projects/app/src/styles"]
+            },
             "scripts": []
           },
           "configurations": {
@@ -138,6 +141,9 @@
               }
             ],
             "styles": ["projects/app/src/styles/app.sass"],
+            "stylePreprocessorOptions": {
+              "includePaths": ["projects/app/src/styles"]
+            },
             "scripts": []
           }
         },
