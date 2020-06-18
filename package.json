@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve --open --port 4220",
-    "build": "ng build --prod",
+    "build": "ng build app --prod",
     "build:lib": "ng build ngx-graph --prod",
     "prebuild:lib": "cp README.md projects/ngx-graph/README.md",
     "test": "ng test",

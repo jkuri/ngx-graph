@@ -1,5 +1,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { LineChartProperties, LineChartScaleProperties, GridProperties, LineChartData, InteractionProperties } from 'ngx-graph';
+import {
+  LineChartProperties,
+  LineChartScaleProperties,
+  GridProperties,
+  LineChartData,
+  InteractionProperties
+} from 'ngx-graph';
 import { format } from 'd3-format';
 import { DataService } from '../../providers/data.service';
 import { ThemeService } from '../../providers/theme.service';
