@@ -17,8 +17,7 @@
     ],
     "paths": {
       "ngx-graph": [
-        "dist/ngx-graph/ngx-graph",
-        "dist/ngx-graph"
+        "projects/ngx-graph/src/public-api"
       ]
     }
   },
