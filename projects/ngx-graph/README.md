@@ -148,9 +148,9 @@ In your component:
 ```ts
 import { interval } from 'rxjs';
 import { timeInterval } from 'rxjs/operators';
-import { RealtimeChartSettings } from 'ngx-graph';
+import { RealtimeChartOptions } from 'ngx-graph';
 
-realtimeChartOptions: RealtimeChartSettings = {
+realtimeChartOptions: RealtimeChartOptions = {
   height: 300,
   margin: { left: 40 },
   lines: [
