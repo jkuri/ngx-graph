@@ -56,7 +56,7 @@ export interface RealtimeChartOptions {
   loadingMessage?: string;
 }
 
-export const defaultRealtimeChartSettings: RealtimeChartOptions = {
+export const defaultRealtimeChartOptions: RealtimeChartOptions = {
   margin: { top: 25, right: 25, bottom: 25, left: 25 },
   colors: Colors,
   lines: [],

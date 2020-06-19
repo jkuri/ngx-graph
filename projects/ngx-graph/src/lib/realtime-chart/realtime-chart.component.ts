@@ -11,7 +11,7 @@ import { Subscription, timer } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { ResizeService } from '../shared/resize.service';
 import { curveTypeMapping } from '../shared/chart.interface';
-import { defaultRealtimeChartSettings, RealtimeChartData, RealtimeChartSettings } from './realtime-chart.interface';
+import { defaultRealtimeChartOptions, RealtimeChartData, RealtimeChartOptions } from './realtime-chart.interface';
 
 @Component({
   selector: 'ngx-realtime-chart',
@@ -21,7 +21,7 @@ import { defaultRealtimeChartSettings, RealtimeChartData, RealtimeChartSettings 
 })
 export class RealtimeChartComponent implements OnInit, OnChanges, OnDestroy {
   @Input() data: RealtimeChartData[][] = [];
-  @Input() options: RealtimeChartSettings = {};
+  @Input() options: RealtimeChartOptions = {};
 
   duration = 1000;
   now: Date;
@@ -403,13 +403,13 @@ export class RealtimeChartComponent implements OnInit, OnChanges, OnDestroy {
 
   private initSettings(): void {
     this.options = {
-      ...defaultRealtimeChartSettings,
+      ...defaultRealtimeChartOptions,
       ...this.options,
-      margin: { ...defaultRealtimeChartSettings.margin, ...this.options.margin || {} }
+      margin: { ...defaultRealtimeChartOptions.margin, ...this.options.margin || {} }
     };
 
-    this.options.xGrid = { ...defaultRealtimeChartSettings.xGrid, ...this.options.xGrid || {} };
-    this.options.yGrid = { ...defaultRealtimeChartSettings.yGrid, ...this.options.yGrid || {} };
+    this.options.xGrid = { ...defaultRealtimeChartOptions.xGrid, ...this.options.xGrid || {} };
+    this.options.yGrid = { ...defaultRealtimeChartOptions.yGrid, ...this.options.yGrid || {} };
 
     this.options.lines = this.options.lines || [];
 
