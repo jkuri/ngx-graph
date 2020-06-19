@@ -6,7 +6,7 @@ export interface RealtimeChartData {
   value: number;
 }
 
-export interface RealtimeChartLineSettings {
+export interface RealtimeChartLineOptions {
   color?: string;
   opacity?: number;
   lineWidth?: number;
@@ -16,7 +16,7 @@ export interface RealtimeChartLineSettings {
   curve?: CurveType;
 }
 
-interface RealtimeChartGridSettings {
+interface RealtimeChartGridOptions {
   enable?: boolean;
   color?: string;
   size?: number;
@@ -32,31 +32,31 @@ interface RealtimeChartGridSettings {
   tickFontAnchor?: 'start' | 'middle' | 'end';
 }
 
-export interface RealtimeChartXGridSettings extends RealtimeChartGridSettings {
+export interface RealtimeChartXGridOptions extends RealtimeChartGridOptions {
   tickFormat?: string;
 }
 
-export interface RealtimeChartYGridSettings extends RealtimeChartGridSettings {
+export interface RealtimeChartYGridOptions extends RealtimeChartGridOptions {
   min?: number | 'auto';
   max?: number | 'auto';
   tickValues?: string[];
   tickFormat?: string | ((v: string | number) => string);
 }
 
-export interface RealtimeChartSettings {
+export interface RealtimeChartOptions {
   width?: number;
   height?: number;
   margin?: { top?: number, right?: number, bottom?: number, left?: number };
   colors?: string[];
   timeFormat?: string;
-  lines?: RealtimeChartLineSettings[];
-  xGrid?: RealtimeChartXGridSettings;
-  yGrid?: RealtimeChartYGridSettings;
+  lines?: RealtimeChartLineOptions[];
+  xGrid?: RealtimeChartXGridOptions;
+  yGrid?: RealtimeChartYGridOptions;
   timeSlots?: number;
   loadingMessage?: string;
 }
 
-export const defaultRealtimeChartSettings: RealtimeChartSettings = {
+export const defaultRealtimeChartSettings: RealtimeChartOptions = {
   margin: { top: 25, right: 25, bottom: 25, left: 25 },
   colors: Colors,
   lines: [],

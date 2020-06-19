@@ -109,25 +109,15 @@ export class RealtimeChartComponent implements OnInit, OnChanges, OnDestroy {
   private updateData(): void {
     this.dataValues = (this.data || [])
       .map(data => {
-        const now = new Date();
-        const last = data[data.length - 1] || { date: now, value: -1 };
-
-        const nb = Math.round((now.getTime() - last.date.getTime()) / 1000);
-        data = [
-          ...data,
-          ...[...new Array(nb)].map((_, i) => ({ ...last, date: new Date(last.date.getTime() + this.duration * (i + 1)) })),
-          ...[{ date: new Date(now.getTime() + this.duration), value: last.value }]
-        ];
-
-        const first = data[0] || { date: now, value: -1 };
-        data = this.options.timeSlots - data.length ?
-          [
-            ...[...new Array(this.options.timeSlots)]
-              .map((_, i) => ({ date: new Date(first.date.getTime() - ((this.options.timeSlots - i + 1) * this.duration)), value: -1 })),
-            ...data
-          ] : data;
-
-        return data;
+        return data
+          .reduce((acc, curr, i, arr) => {
+            const next = arr[i + 1] || { date: new Date(), value: curr.value };
+            const diff = Math.round((next.date.getTime() - curr.date.getTime()) / this.duration);
+            const a = diff > 0 ? [...new Array(diff)]
+              .map((_, j) => ({ ...curr, date: new Date(curr.date.getTime() + this.duration * (j + 1)) })) : [curr];
+            return acc.concat(...a);
+          }, [])
+          .map((d: RealtimeChartData) => ({ ...d, date: new Date(d.date.getTime() + this.duration) }));
       });
   }
 

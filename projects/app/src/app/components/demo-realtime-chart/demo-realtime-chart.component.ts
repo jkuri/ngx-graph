@@ -1,7 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { RealtimeChartSettings } from 'ngx-graph';
-import { interval, Subscription } from 'rxjs';
-import { timeInterval } from 'rxjs/operators';
+import { RealtimeChartOptions } from 'ngx-graph';
+import { Subscription, timer } from 'rxjs';
 import { DataService } from '../../providers/data.service';
 import { ThemeService } from '../../providers/theme.service';
 
@@ -13,8 +12,8 @@ import { ThemeService } from '../../providers/theme.service';
 export class DemoRealtimeChartComponent implements OnInit, OnDestroy {
   sub = new Subscription();
 
-  realtimeChartOptions: RealtimeChartSettings;
-  realtimeChartOptionsBright: RealtimeChartSettings = {
+  realtimeChartOptions: RealtimeChartOptions;
+  realtimeChartOptionsBright: RealtimeChartOptions = {
     height: 200,
     margin: { left: 40 },
     lines: [
@@ -23,7 +22,7 @@ export class DemoRealtimeChartComponent implements OnInit, OnDestroy {
     xGrid: { tickPadding: 15, tickNumber: 5 },
     yGrid: { min: 0, max: 100, tickNumber: 5, tickFormat: (v: number) => `${v}%`, tickPadding: 25 }
   };
-  realtimeChartOptionsDark: RealtimeChartSettings = {
+  realtimeChartOptionsDark: RealtimeChartOptions = {
     height: 200,
     margin: { left: 40 },
     lines: [
@@ -59,8 +58,7 @@ export class DemoRealtimeChartComponent implements OnInit, OnDestroy {
         })
     );
     this.sub.add(
-      interval(1000)
-        .pipe(timeInterval())
+      timer(0, 1000)
         .subscribe(() => {
           this.realtimeChartData[0].push({ date: new Date(), value: this.data.randomInt(0, 100) });
         })
