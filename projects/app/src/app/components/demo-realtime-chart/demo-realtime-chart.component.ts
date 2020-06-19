@@ -44,7 +44,10 @@ export class DemoRealtimeChartComponent implements OnInit, OnDestroy {
       color: '#BEC6E0',
       opacity: .05,
       tickFontColor: '#BEC6E0'
-    }
+    },
+    loadingMessage: 'Chart is initializing, please wait...',
+    loadingOverlayColor: '#323B64',
+    loadingTextColor: '#BEC6E0'
   };
   realtimeChartData = [[{ date: new Date(), value: 40 }]];
 

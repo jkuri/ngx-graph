@@ -54,6 +54,8 @@ export interface RealtimeChartOptions {
   yGrid?: RealtimeChartYGridOptions;
   timeSlots?: number;
   loadingMessage?: string;
+  loadingOverlayColor?: string;
+  loadingTextColor?: string;
 }
 
 export const defaultRealtimeChartOptions: RealtimeChartOptions = {
@@ -93,5 +95,7 @@ export const defaultRealtimeChartOptions: RealtimeChartOptions = {
     tickFontAnchor: 'middle'
   },
   timeSlots: 40,
-  loadingMessage: 'Initializing, please wait...'
+  loadingMessage: 'Initializing, please wait...',
+  loadingOverlayColor: '#ffffff',
+  loadingTextColor: '#6B6C6F'
 };

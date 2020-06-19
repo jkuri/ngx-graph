@@ -91,7 +91,7 @@ export class RealtimeChartComponent implements OnInit, OnChanges, OnDestroy {
     } catch { }
   }
 
-  initChart(): void {
+  private initChart(): void {
     this.el = this.elementRef.nativeElement.querySelector('.realtime-chart-container');
     this.svg = select(this.el).append('svg');
     this.g = this.svg.append('g');
@@ -171,7 +171,7 @@ export class RealtimeChartComponent implements OnInit, OnChanges, OnDestroy {
     this.drawChart();
   }
 
-  tick(): void {
+  private tick(): void {
     try {
       this.transition.transition();
     } catch {
