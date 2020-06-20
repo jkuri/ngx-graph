@@ -17,10 +17,23 @@ export class DemoLineAreaChartComponent implements OnInit, OnDestroy {
   lineChartOptionsBright: LineChartOptions = {
     height: 300,
     margin: { top: 20, right: 40, bottom: 80, left: 60 },
-    yScale: { min: 0, max: 3000 },
+    xScale: { min: 'auto', max: 'auto', type: 'linear' },
+    yScale: { min: 0, max: 3000, type: 'linear' },
     xGrid: {
+      enable: true,
+      color: '#e9e9e9',
+      size: 2,
+      dashed: true,
       opacity: .4,
-      textColor: '#333'
+      text: true,
+      textSize: 11,
+      textColor: '#6B6C6F',
+      fontFamily: 'sans-serif',
+      tickValues: null,
+      tickNumber: null,
+      tickPadding: 20,
+      tickTextAnchor: 'middle',
+      values: null
     },
     yGrid: {
       tickPadding: 13,

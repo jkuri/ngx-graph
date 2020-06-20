@@ -1,0 +1,85 @@
+<div class="modal-overlay">
+  <div class="modal-container">
+    <div class="container">
+      <div class="columns">
+        <div class="column is-10 is-offset-1">
+          <div class="columns">
+            <div class="column is-2 is-bordered">
+              <h2>Dimensions</h2>
+              <div class="field">
+                <label class="label">Width</label>
+                <input type="number" class="input" name="width" [(ngModel)]="form.width">
+              </div>
+              <div class="field">
+                <label class="label">Height</label>
+                <input type="number" class="input" name="height" [(ngModel)]="form.height">
+              </div>
+            </div>
+            <div class="column is-2 is-bordered">
+              <h2>Margin</h2>
+              <div class="columns">
+                <div class="column is-6">
+                  <div class="field">
+                    <label class="label">Top</label>
+                    <input type="number" class="input" name="margin_top" [(ngModel)]="form.margin.top">
+                  </div>
+                </div>
+                <div class="column is-6">
+                  <div class="field">
+                    <label class="label">Left</label>
+                    <input type="number" class="input" name="margin_left" [(ngModel)]="form.margin.left">
+                  </div>
+                </div>
+              </div>
+              <div class="columns">
+                <div class="column is-6">
+                  <div class="field">
+                    <label class="label">Bottom</label>
+                    <input type="number" class="input" name="margin_bottom" [(ngModel)]="form.margin.bottom">
+                  </div>
+                </div>
+                <div class="column is-6">
+                  <div class="field">
+                    <label class="label">Right</label>
+                    <input type="number" class="input" name="margin_right" [(ngModel)]="form.margin.right">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="column is-4 is-bordered">
+              <h2>X Grid</h2>
+              <div class="columns">
+                <div class="column is-6">
+                  <div class="field">
+                    <label class="label">Enable</label>
+                    <input type="checkbox" name="x_grid_enable" [(ngModel)]="form.xGrid.enable">
+                  </div>
+                </div>
+                <div class="column is-6">
+                  <div class="field">
+                    <label class="label">Color</label>
+                    <input type="text" class="input" name="x_grid_color" [(ngModel)]="form.xGrid.color">
+                  </div>
+                </div>
+              </div>
+              <div class="columns">
+                <div class="column is-6">
+                  <div class="field">
+                    <label class="label">Size</label>
+                    <input type="number" class="input" name="x_grid_size" [(ngModel)]="form.xGrid.size">
+                  </div>
+                </div>
+                <div class="column is-6">
+                  <div class="field">
+                    <label class="label">Dashed</label>
+                    <input type="text" class="input" name="x_grid_dashed" [(ngModel)]="form.xGrid.dashed">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

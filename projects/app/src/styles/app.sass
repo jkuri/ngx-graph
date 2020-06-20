@@ -12,10 +12,13 @@
 @import '~bulma/sass/grid/columns'
 @import 'typography'
 @import 'header'
+@import 'common'
+@import 'button'
 @import 'hero'
 @import 'form'
 @import 'terminal'
 @import 'datepicker'
+@import 'modal'
 
 html, body
   background: $background
@@ -33,39 +36,6 @@ html, body
     padding: 20px 10px
     border-radius: 6px
     box-shadow: $box-shadow
-
-  .has-text-centered
-    text-align: center
-
-  .field
-    display: inline-block
-    width: 100%
-    max-width: 100%
-    position: relative
-
-  .label
-    display: block
-    color: $text-label
-    font-size: 12px
-    font-weight: $weight-medium
-    margin: 15px 0 5px 0
-    text-transform: uppercase
-
-  .input
-    color: $text-input
-    font-size: 14px
-    height: $input-height
-    text-indent: 14px
-    border: 1px solid $border-input
-    outline: none
-    display: flex
-    align-items: center
-    justify-content: center
-    line-height: 100%
-    margin: 0
-    padding: 0 30px 0 0
-    width: 100%
-    border-radius: 4px
 
   &.is-dark
     background: $background-dark

@@ -13,6 +13,7 @@ import { DataService } from './providers/data.service';
 import { HeaderComponent } from './components/header/header.component';
 import { ThemeService } from './providers/theme.service';
 import { ToggleComponent } from './components/toggle/toggle.component';
+import { LineChartFormModalComponent } from './components/line-chart-form-modal/line-chart-form-modal.component';
 
 @NgModule({
   declarations: [
@@ -21,7 +22,8 @@ import { ToggleComponent } from './components/toggle/toggle.component';
     DemoRealtimeChartComponent,
     DemoPieChartComponent,
     HeaderComponent,
-    ToggleComponent
+    ToggleComponent,
+    LineChartFormModalComponent
   ],
   imports: [
     BrowserModule,
