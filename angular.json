@@ -176,7 +176,7 @@
   "defaultProject": "ngx-graph",
   "schematics": {
     "@schematics/angular:component": {
-      "styleext": "sass",
+      "style": "sass",
       "skipTests": true
     }
   }
