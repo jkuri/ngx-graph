@@ -6,6 +6,8 @@ Currently it includes Line/Area Chart, Realtime Line/Area Chart and Pie Chart.
 
 Check live [demo](https://ngx-graph.jankuri.com).
 
+[CodeSandbox Demo - Line Chart](https://codesandbox.io/s/ngx-graph-line-chart-example-2jdpc)
+
 ## Running Demo Locally
 
 You can run demo app locally, just follow this steps.
@@ -140,7 +142,10 @@ For above sample you can check source code [here](https://github.com/jkuri/ngx-g
 In your template:
 
 ```html
-<ngx-realtime-chart [options]="realtimeChartOptions" [data]="realtimeChartData"></ngx-realtime-chart>
+<ngx-realtime-chart
+  [options]="realtimeChartOptions"
+  [data]="realtimeChartData"
+></ngx-realtime-chart>
 ```
 
 In your component:
