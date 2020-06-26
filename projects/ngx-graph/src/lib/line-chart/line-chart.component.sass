@@ -2,6 +2,13 @@ $white: #ffffff
 $weight-semibold: 600
 $text-primary: #333
 
+\:host
+  box-sizing: border-box
+
+  *
+    &, &::before, &::after
+      box-sizing: inherit
+
 .line-chart-container
   width: 100%
   height: 100%

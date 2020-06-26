@@ -8,7 +8,7 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-demo-line-area-chart',
   templateUrl: './demo-line-area-chart.component.html',
-  styleUrls: ['./demo-line-area-chart.component.sass']
+  styleUrls: ['./demo-line-area-chart.component.sass'],
 })
 export class DemoLineAreaChartComponent implements OnInit, OnDestroy {
   sub = new Subscription();
@@ -24,7 +24,7 @@ export class DemoLineAreaChartComponent implements OnInit, OnDestroy {
       color: '#e9e9e9',
       size: 2,
       dashed: true,
-      opacity: .4,
+      opacity: 0.4,
       text: true,
       textSize: 11,
       textColor: '#6B6C6F',
@@ -33,15 +33,15 @@ export class DemoLineAreaChartComponent implements OnInit, OnDestroy {
       tickNumber: null,
       tickPadding: 20,
       tickTextAnchor: 'middle',
-      values: null
+      values: null,
     },
     yGrid: {
       tickPadding: 13,
       tickFormat: (num: number) => format('~s')(num) + ' €',
       tickTextAnchor: 'end',
       tickNumber: 5,
-      opacity: .4,
-      textColor: '#333'
+      opacity: 0.4,
+      textColor: '#333',
     },
     transitions: true,
     transitionDuration: 400,
@@ -54,7 +54,7 @@ export class DemoLineAreaChartComponent implements OnInit, OnDestroy {
       axisLineSize: 4,
       axisLineColor: '#eef0f7',
       tooltip: true,
-    }
+    },
   };
   lineChartOptionsDark: LineChartOptions = {
     height: 300,
@@ -62,8 +62,8 @@ export class DemoLineAreaChartComponent implements OnInit, OnDestroy {
     yScale: { min: 0, max: 3000 },
     xGrid: {
       color: '#BEC6E0',
-      opacity: .05,
-      textColor: '#BEC6E0'
+      opacity: 0.05,
+      textColor: '#BEC6E0',
     },
     yGrid: {
       tickPadding: 13,
@@ -71,8 +71,8 @@ export class DemoLineAreaChartComponent implements OnInit, OnDestroy {
       tickTextAnchor: 'end',
       tickNumber: 5,
       color: '#BEC6E0',
-      opacity: .05,
-      textColor: '#BEC6E0'
+      opacity: 0.05,
+      textColor: '#BEC6E0',
     },
     transitions: true,
     transitionDuration: 400,
@@ -81,96 +81,100 @@ export class DemoLineAreaChartComponent implements OnInit, OnDestroy {
     legendMargin: { top: 0, right: 0, left: 0, bottom: 0 },
     initialTransition: false,
     interaction: {
-      enable: false
-    }
+      enable: false,
+    },
   };
 
   lineChartData: LineChartData[];
   lineChartDataBright = [
     new LineChartData({
       id: 'progress',
-      data: this.data.generateRandomDateValues(10, 2000, 2900),
+      data: this.data.generateRandomDateValues(50, 2000, 2900),
       area: true,
-      areaOpacity: .4,
+      areaOpacity: 0.4,
       curve: 'linear',
       markers: true,
       color: '#FACF55',
       areaColor: '#FACF55',
       markerColor: '#FACF55',
-      lineSize: 3
+      lineSize: 3,
     }),
     new LineChartData({
       id: 'income',
-      data: this.data.generateRandomDateValues(10, 1200, 1900),
+      data: this.data.generateRandomDateValues(50, 1200, 1900),
       area: true,
-      areaOpacity: .4,
+      areaOpacity: 0.4,
       curve: 'linear',
       markers: true,
-      lineSize: 3
+      lineSize: 3,
     }),
     new LineChartData({
       id: 'expenses',
-      data: this.data.generateRandomDateValues(10, 400, 950),
+      data: this.data.generateRandomDateValues(50, 400, 950),
       area: true,
-      areaOpacity: .4,
+      areaOpacity: 0.4,
       curve: 'linear',
       markers: true,
       color: '#34B77C',
       areaColor: '#34B77C',
       markerColor: '#34B77C',
-      lineSize: 3
-    })
+      lineSize: 3,
+    }),
   ];
   lineChartDataDark = [
     new LineChartData({
       id: 'progress',
-      data: this.data.generateRandomDateValues(10, 2000, 2900),
+      data: this.data.generateRandomDateValues(50, 2000, 2900),
       area: true,
       areaOpacity: 1,
-      curve: 'cardinal',
+      curve: 'linear',
       markers: false,
       color: '#FACF55',
       areaColor: '#FACF55',
       markerColor: '#FACF55',
-      lineSize: 3
+      lineSize: 3,
     }),
     new LineChartData({
       id: 'income',
-      data: this.data.generateRandomDateValues(10, 1200, 1900),
+      data: this.data.generateRandomDateValues(50, 1200, 1900),
       area: true,
       areaOpacity: 1,
-      curve: 'cardinal',
+      curve: 'linear',
       markers: false,
-      lineSize: 3
+      lineSize: 3,
     }),
     new LineChartData({
       id: 'expenses',
-      data: this.data.generateRandomDateValues(10, 400, 950),
+      data: this.data.generateRandomDateValues(50, 400, 950),
       area: true,
       areaOpacity: 1,
-      curve: 'cardinal',
+      curve: 'linear',
       markers: false,
       color: '#34B77C',
       areaColor: '#34B77C',
       markerColor: '#34B77C',
-      lineSize: 3
-    })
+      lineSize: 3,
+    }),
   ];
 
-  constructor(public data: DataService, public themeService: ThemeService) { }
+  constructor(public data: DataService, public themeService: ThemeService) {}
 
   ngOnInit(): void {
     this.sub.add(
-      this.themeService.theme
-        .subscribe(theme => {
-          this.lineChartOptions = theme === 'bright' ? this.lineChartOptionsBright : this.lineChartOptionsDark;
-          this.lineChartData = theme === 'bright' ? this.lineChartDataBright : this.lineChartDataDark;
-        })
+      this.themeService.theme.subscribe((theme) => {
+        this.lineChartOptions =
+          theme === 'bright'
+            ? this.lineChartOptionsBright
+            : this.lineChartOptionsDark;
+        this.lineChartData =
+          theme === 'bright'
+            ? this.lineChartDataBright
+            : this.lineChartDataDark;
+      })
     );
   }
 
   ngOnDestroy(): void {
     this.sub.unsubscribe();
   }
-
 }
