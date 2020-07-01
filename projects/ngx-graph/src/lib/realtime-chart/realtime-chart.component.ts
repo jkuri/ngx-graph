@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  SimpleChanges
+} from '@angular/core';
 import { EventManager } from '@angular/platform-browser';
 import { max, min } from 'd3-array';
 import { Axis, axisBottom, axisLeft } from 'd3-axis';
@@ -12,6 +21,7 @@ import { debounceTime } from 'rxjs/operators';
 import { ResizeService } from '../shared/resize.service';
 import { curveTypeMapping } from '../shared/chart.interface';
 import { defaultRealtimeChartOptions, RealtimeChartData, RealtimeChartOptions } from './realtime-chart.interface';
+import { diffInMillis, addSeconds, addMilliseconds, subMilliseconds, isBefore } from '../shared/time';
 
 @Component({
   selector: 'ngx-realtime-chart',
@@ -48,22 +58,17 @@ export class RealtimeChartComponent implements OnInit, OnChanges, OnDestroy {
   transition = transition(`${this.id}-transition`).duration(this.duration).ease(easeLinear);
   inited = false;
 
-  constructor(
-    public elementRef: ElementRef,
-    public resizeService: ResizeService,
-    public eventManager: EventManager
-  ) { }
+  constructor(public elementRef: ElementRef, public resizeService: ResizeService, public eventManager: EventManager) {}
 
   ngOnInit() {
     this.initSettings();
     this.subs.add(this.resizeService.onResize$.subscribe(() => this.displayLoadingOverlay()));
     this.subs.add(this.resizeService.onResize$.pipe(debounceTime(500)).subscribe(() => this.onResize()));
     this.subs.add(
-      timer(0, this.duration)
-        .subscribe(() => {
-          this.lastUpdate = new Date();
-          this.updateData();
-        })
+      timer(0, this.duration).subscribe(() => {
+        this.lastUpdate = new Date();
+        this.updateData();
+      })
     );
     this.eventManager.addGlobalEventListener('document', 'visibilitychange', this.onVisibilityChange.bind(this));
 
@@ -88,14 +93,16 @@ export class RealtimeChartComponent implements OnInit, OnChanges, OnDestroy {
 
     try {
       interrupt(this.transition.node(), `${this.id}-transition`);
-    } catch { }
+    } catch {}
   }
 
   private initChart(): void {
     this.el = this.elementRef.nativeElement.querySelector('.realtime-chart-container');
     this.svg = select(this.el).append('svg');
     this.g = this.svg.append('g');
-    this.clipPath = this.svg.append('defs').append('clipPath')
+    this.clipPath = this.svg
+      .append('defs')
+      .append('clipPath')
       .attr('id', `${this.id}-clip`)
       .append('rect')
       .attr('transform', `translate(0, 0)`);
@@ -107,18 +114,17 @@ export class RealtimeChartComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private updateData(): void {
-    this.dataValues = (this.data || [])
-      .map(data => {
-        return data
-          .reduce((acc, curr, i, arr) => {
-            const next = arr[i + 1] || { date: new Date(), value: curr.value };
-            const diff = Math.round((next.date.getTime() - curr.date.getTime()) / this.duration);
-            const a = diff > 0 ? [...new Array(diff)]
-              .map((_, j) => ({ ...curr, date: new Date(curr.date.getTime() + this.duration * (j + 1)) })) : [curr];
-            return acc.concat(...a);
-          }, [])
-          .map((d: RealtimeChartData) => ({ ...d, date: new Date(d.date.getTime() + this.duration) }));
-      });
+    this.dataValues = (this.data || []).map(data => {
+      return data
+        .reduce((acc, curr, i, arr) => {
+          const next = arr[i + 1] || { date: new Date(), value: curr.value };
+          const n = Math.round(diffInMillis(next.date, curr.date) / this.duration);
+          return n > 0
+            ? acc.concat(...[...new Array(n)].map((_, j) => ({ ...curr, date: addSeconds(curr.date, j + 1) })))
+            : acc.concat(...[curr]);
+        }, [])
+        .map((d: RealtimeChartData) => ({ ...d, date: addMilliseconds(d.date, this.duration) }));
+    });
   }
 
   private drawChart(): void {
@@ -178,46 +184,59 @@ export class RealtimeChartComponent implements OnInit, OnChanges, OnDestroy {
       this.transition = transition(`${this.id}-transition`).duration(this.duration).ease(easeLinear);
     }
 
-    this.transition = this.transition.each(() => {
-      this.now = new Date();
-      this.setDomains();
+    this.transition = this.transition
+      .each(() => {
+        this.now = new Date();
+        this.setDomains();
 
-      this.linePaths.forEach((path, i: number) => {
-        path
-          .attr('d', this.line(this.dataValues[i] as any))
-          .attr('transform', null)
-          .transition().duration(this.duration).ease(easeLinear)
-          .attr('transform', `translate(${this.x(this.now.getTime() - (this.options.timeSlots - 1) * this.duration)}, 0)`);
-
-        if (this.options.lines[i] && this.options.lines[i].area && this.areaPaths && this.areaPaths[i]) {
-          this.areaPaths[i]
-            .attr('d', this.area(this.dataValues[i] as any))
+        this.linePaths.forEach((path, i: number) => {
+          path
+            .attr('d', this.line(this.dataValues[i] as any))
             .attr('transform', null)
-            .transition().duration(this.duration).ease(easeLinear)
-            .attr('transform', `translate(${this.x(this.now.getTime() - (this.options.timeSlots - 1) * this.duration)}, 0)`);
+            .transition()
+            .duration(this.duration)
+            .ease(easeLinear)
+            .attr(
+              'transform',
+              `translate(${this.x(this.now.getTime() - (this.options.timeSlots - 1) * this.duration)}, 0)`
+            );
+
+          if (this.options.lines[i] && this.options.lines[i].area && this.areaPaths && this.areaPaths[i]) {
+            this.areaPaths[i]
+              .attr('d', this.area(this.dataValues[i] as any))
+              .attr('transform', null)
+              .transition()
+              .duration(this.duration)
+              .ease(easeLinear)
+              .attr(
+                'transform',
+                `translate(${this.x(this.now.getTime() - (this.options.timeSlots - 1) * this.duration)}, 0)`
+              );
+          }
+        });
+
+        const { y, x } = this.getAxesData();
+
+        if (this.options.xGrid.enable) {
+          this.xAxis
+            .transition()
+            .duration(this.duration)
+            .ease(easeLinear)
+            .call(x)
+            .attr('transform', `translate(0, ${this.height})`);
         }
-      });
 
-      const { y, x } = this.getAxesData();
+        if (this.options.yGrid.enable) {
+          this.yAxis.call(y);
+        }
 
-      if (this.options.xGrid.enable) {
-        this.xAxis
-          .transition().duration(this.duration).ease(easeLinear)
-          .call(x)
-          .attr('transform', `translate(0, ${this.height})`);
-      }
+        this.styleAxes();
 
-      if (this.options.yGrid.enable) {
-        this.yAxis.call(y);
-      }
-
-      this.styleAxes();
-
-      if (!this.inited) {
-        this.hideLoadingOverlay();
-        this.inited = true;
-      }
-    })
+        if (!this.inited) {
+          this.hideLoadingOverlay();
+          this.inited = true;
+        }
+      })
       .transition()
       .on('start', () => this.tick());
   }
@@ -236,25 +255,30 @@ export class RealtimeChartComponent implements OnInit, OnChanges, OnDestroy {
       interrupt(this.transition.node(), `${this.id}-transition`);
       this.now = new Date();
     } catch {
-      const diff = this.duration - (new Date().getTime() - this.lastUpdate.getTime());
+      try {
+        const diff = this.duration - (new Date().getTime() - this.lastUpdate.getTime());
 
-      setTimeout(() => {
-        this.now = new Date();
-        this.redrawChart();
-        this.tick();
-        this.inited = false;
-      }, diff);
+        setTimeout(() => {
+          this.now = new Date();
+          this.redrawChart();
+          this.tick();
+          this.inited = false;
+        }, diff);
+      } catch {}
     }
   }
 
   private setDomains(): void {
     this.x = scaleTime().range([0, this.width]);
     this.y = scaleLinear().range([this.height, 0]);
-    this.x.domain([this.now.getTime() - (this.options.timeSlots - 2) * this.duration, this.now.getTime() - (this.duration * 2)]);
+    this.x.domain([
+      this.now.getTime() - (this.options.timeSlots - 2) * this.duration,
+      this.now.getTime() - this.duration * 2
+    ]);
 
     const values = this.dataValues.reduce((acc, curr) => acc.concat(curr.map((d: any) => d.value)), []);
     const [minv, maxv] = [Number(min(values as any)), Number(max(values as any))];
-    const factor = (maxv - minv) * .05;
+    const factor = (maxv - minv) * 0.05;
     const [ymin, ymax] = [
       this.options.yGrid.min === 'auto' ? Number(minv) - factor : this.options.yGrid.min,
       this.options.yGrid.max === 'auto' ? Number(maxv) + factor : this.options.yGrid.max
@@ -268,42 +292,43 @@ export class RealtimeChartComponent implements OnInit, OnChanges, OnDestroy {
     const { y, x } = this.getAxesData();
 
     if (this.options.xGrid.enable) {
-      this.xAxis = this.g.append('g')
-        .attr('class', 'x axis')
-        .call(x)
-        .attr('transform', `translate(0, ${this.height})`);
+      this.xAxis = this.g.append('g').attr('class', 'x axis').call(x).attr('transform', `translate(0, ${this.height})`);
     }
 
     if (this.options.yGrid.enable) {
-      this.yAxis = this.g.append('g')
-        .attr('class', 'y axis')
-        .call(y);
+      this.yAxis = this.g.append('g').attr('class', 'y axis').call(y);
     }
 
     this.styleAxes();
   }
 
   private getAxesData(): {
-    y: Axis<number | {
-      valueOf(): number;
-    }>;
-    x: Axis<number | Date | {
-      valueOf(): number;
-    }>;
+    y: Axis<number | { valueOf(): number }>;
+    x: Axis<number | Date | { valueOf(): number }>;
   } {
     return {
-      y: axisLeft(this.y).tickSize(-this.width).tickPadding(this.options.yGrid.tickPadding).ticks(this.options.yGrid.tickNumber,
-        typeof this.options.yGrid.tickFormat !== 'function' ? this.options.yGrid.tickFormat : null
-      )
-        .tickFormat(typeof this.options.yGrid.tickFormat === 'function' ? this.options.yGrid.tickFormat as any : null),
-      x: axisBottom(this.x).tickSizeInner(-this.height).tickSizeOuter(0).tickPadding(this.options.xGrid.tickPadding)
+      y: axisLeft(this.y)
+        .tickSize(-this.width)
+        .tickPadding(this.options.yGrid.tickPadding)
+        .ticks(
+          this.options.yGrid.tickNumber,
+          typeof this.options.yGrid.tickFormat !== 'function' ? this.options.yGrid.tickFormat : null
+        )
+        .tickFormat(
+          typeof this.options.yGrid.tickFormat === 'function' ? (this.options.yGrid.tickFormat as any) : null
+        ),
+      x: axisBottom(this.x)
+        .tickSizeInner(-this.height)
+        .tickSizeOuter(0)
+        .tickPadding(this.options.xGrid.tickPadding)
         .ticks(this.options.xGrid.tickNumber, this.options.xGrid.tickFormat)
     };
   }
 
   private styleAxes(): void {
     if (this.options.xGrid.enable) {
-      this.xAxis.selectAll('g.tick')
+      this.xAxis
+        .selectAll('g.tick')
         .select('line')
         .style('shape-rendering', 'crispEdges')
         .style('fill', 'none')
@@ -312,7 +337,8 @@ export class RealtimeChartComponent implements OnInit, OnChanges, OnDestroy {
         .style('stroke-dasharray', this.options.xGrid.dashed ? '3 3' : '0')
         .style('opacity', this.options.xGrid.opacity);
 
-      this.xAxis.selectAll('g.tick')
+      this.xAxis
+        .selectAll('g.tick')
         .selectAll('text')
         .attr('text-anchor', this.options.xGrid.tickFontAnchor)
         .style('fill', this.options.xGrid.tickFontColor)
@@ -322,7 +348,8 @@ export class RealtimeChartComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     if (this.options.yGrid.enable) {
-      this.yAxis.selectAll('g.tick')
+      this.yAxis
+        .selectAll('g.tick')
         .select('line')
         .style('shape-rendering', 'crispEdges')
         .style('fill', 'none')
@@ -331,7 +358,8 @@ export class RealtimeChartComponent implements OnInit, OnChanges, OnDestroy {
         .style('stroke-dasharray', this.options.yGrid.dashed ? '3 3' : '0')
         .style('opacity', this.options.yGrid.opacity);
 
-      this.yAxis.selectAll('g.tick')
+      this.yAxis
+        .selectAll('g.tick')
         .selectAll('text')
         .attr('text-anchor', this.options.yGrid.tickFontAnchor)
         .style('fill', this.options.yGrid.tickFontColor)
@@ -340,9 +368,7 @@ export class RealtimeChartComponent implements OnInit, OnChanges, OnDestroy {
         .style('font-weight', this.options.yGrid.tickFontWeight);
     }
 
-    this.svg.selectAll('.axis')
-      .select('path')
-      .style('display', 'none');
+    this.svg.selectAll('.axis').select('path').style('display', 'none');
   }
 
   private onResize(): void {
@@ -361,12 +387,9 @@ export class RealtimeChartComponent implements OnInit, OnChanges, OnDestroy {
       .attr('width', this.width + this.options.margin.left + this.options.margin.right)
       .attr('height', this.height + this.options.margin.top + this.options.margin.bottom);
 
-    this.g
-      .attr('transform', `translate(${this.options.margin.left}, ${this.options.margin.top})`);
+    this.g.attr('transform', `translate(${this.options.margin.left}, ${this.options.margin.top})`);
 
-    this.clipPath
-      .attr('width', this.width)
-      .attr('height', this.height);
+    this.clipPath.attr('width', this.width).attr('height', this.height);
   }
 
   private onVisibilityChange(e: Event): void {
@@ -380,36 +403,42 @@ export class RealtimeChartComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private displayLoadingOverlay(): void {
-    [].forEach.call([
-      this.elementRef.nativeElement.querySelector('.realtime-chart-container'),
-      this.elementRef.nativeElement.querySelector('.realtime-chart-overlay')
-    ], (el: HTMLElement) => {
-      if (!el.classList.contains('is-loading')) {
-        el.classList.add('is-loading');
+    [].forEach.call(
+      [
+        this.elementRef.nativeElement.querySelector('.realtime-chart-container'),
+        this.elementRef.nativeElement.querySelector('.realtime-chart-overlay')
+      ],
+      (el: HTMLElement) => {
+        if (!el.classList.contains('is-loading')) {
+          el.classList.add('is-loading');
+        }
       }
-    });
+    );
   }
 
   private hideLoadingOverlay(): void {
-    [].forEach.call([
-      this.elementRef.nativeElement.querySelector('.realtime-chart-container'),
-      this.elementRef.nativeElement.querySelector('.realtime-chart-overlay')
-    ], (el: HTMLElement) => {
-      if (el.classList.contains('is-loading')) {
-        el.classList.remove('is-loading');
+    [].forEach.call(
+      [
+        this.elementRef.nativeElement.querySelector('.realtime-chart-container'),
+        this.elementRef.nativeElement.querySelector('.realtime-chart-overlay')
+      ],
+      (el: HTMLElement) => {
+        if (el.classList.contains('is-loading')) {
+          el.classList.remove('is-loading');
+        }
       }
-    });
+    );
   }
 
   private initSettings(): void {
     this.options = {
       ...defaultRealtimeChartOptions,
       ...this.options,
-      margin: { ...defaultRealtimeChartOptions.margin, ...this.options.margin || {} }
+      margin: { ...defaultRealtimeChartOptions.margin, ...(this.options.margin || {}) }
     };
 
-    this.options.xGrid = { ...defaultRealtimeChartOptions.xGrid, ...this.options.xGrid || {} };
-    this.options.yGrid = { ...defaultRealtimeChartOptions.yGrid, ...this.options.yGrid || {} };
+    this.options.xGrid = { ...defaultRealtimeChartOptions.xGrid, ...(this.options.xGrid || {}) };
+    this.options.yGrid = { ...defaultRealtimeChartOptions.yGrid, ...(this.options.yGrid || {}) };
 
     this.options.lines = this.options.lines || [];
 
@@ -421,7 +450,7 @@ export class RealtimeChartComponent implements OnInit, OnChanges, OnDestroy {
           lineWidth: 2,
           area: true,
           areaColor: this.options.colors[i],
-          areaOpacity: .1,
+          areaOpacity: 0.1,
           curve: 'basis'
         },
         ...this.options.lines[i]

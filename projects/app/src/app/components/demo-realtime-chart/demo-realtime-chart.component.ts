@@ -16,23 +16,20 @@ export class DemoRealtimeChartComponent implements OnInit, OnDestroy {
   realtimeChartOptionsBright: RealtimeChartOptions = {
     height: 200,
     margin: { left: 40 },
-    lines: [
-      { color: '#34B77C', lineWidth: 3, area: true, areaColor: '#34B77C', areaOpacity: .2 }
-    ],
-    xGrid: { tickPadding: 15, tickNumber: 5 },
-    yGrid: { min: 0, max: 100, tickNumber: 5, tickFormat: (v: number) => `${v}%`, tickPadding: 25 }
+    lines: [{ color: '#34B77C', lineWidth: 3, area: true, areaColor: '#34B77C', areaOpacity: 0.5 }],
+    xGrid: { tickPadding: 15, tickNumber: 10 },
+    yGrid: { min: 0, max: 100, tickNumber: 5, tickFormat: (v: number) => `${v}%`, tickPadding: 25 },
+    timeSlots: 60
   };
   realtimeChartOptionsDark: RealtimeChartOptions = {
     height: 200,
     margin: { left: 40 },
-    lines: [
-      { color: '#FACF55', lineWidth: 3, area: true, areaColor: '#FACF55', areaOpacity: .5 }
-    ],
+    lines: [{ color: '#FACF55', lineWidth: 3, area: true, areaColor: '#FACF55', areaOpacity: 0.5 }],
     xGrid: {
       tickPadding: 15,
       tickNumber: 5,
       color: '#BEC6E0',
-      opacity: .05,
+      opacity: 0.05,
       tickFontColor: '#BEC6E0'
     },
     yGrid: {
@@ -42,29 +39,29 @@ export class DemoRealtimeChartComponent implements OnInit, OnDestroy {
       tickFormat: (v: number) => `${v}%`,
       tickPadding: 25,
       color: '#BEC6E0',
-      opacity: .05,
+      opacity: 0.05,
       tickFontColor: '#BEC6E0'
     },
     loadingMessage: 'Chart is initializing, please wait...',
     loadingOverlayColor: '#323B64',
-    loadingTextColor: '#BEC6E0'
+    loadingTextColor: '#BEC6E0',
+    timeSlots: 120
   };
-  realtimeChartData = [[{ date: new Date(), value: 40 }]];
+  realtimeChartData = [[...this.data.generateRandomRealtimeData(60, 1, 0, 100)]];
 
-  constructor(public data: DataService, public themeService: ThemeService) { }
+  constructor(public data: DataService, public themeService: ThemeService) {}
 
   ngOnInit(): void {
     this.sub.add(
-      this.themeService.theme
-        .subscribe(theme => {
-          this.realtimeChartOptions = theme === 'bright' ? this.realtimeChartOptionsBright : this.realtimeChartOptionsDark;
-        })
+      this.themeService.theme.subscribe(theme => {
+        this.realtimeChartOptions =
+          theme === 'bright' ? this.realtimeChartOptionsBright : this.realtimeChartOptionsDark;
+      })
     );
     this.sub.add(
-      timer(0, 1000)
-        .subscribe(() => {
-          this.realtimeChartData[0].push({ date: new Date(), value: this.data.randomInt(0, 100) });
-        })
+      timer(0, 1000).subscribe(() => {
+        this.realtimeChartData[0].push({ date: new Date(), value: this.data.randomInt(0, 100) });
+      })
     );
   }
 
