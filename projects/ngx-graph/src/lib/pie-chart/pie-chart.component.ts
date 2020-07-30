@@ -22,28 +22,23 @@ export class PieChartComponent implements OnInit, OnChanges, OnDestroy {
   el: HTMLElement;
   width: number;
   height: number;
-  pie: Pie<any, number | { valueOf(): number; }>;
+  pie: Pie<any, number | { valueOf(): number }>;
   arc: Arc<any, DefaultArcObject>;
   colors: ScaleOrdinal<string, unknown>;
   svg: Selection<SVGSVGElement, unknown, null, undefined>;
   g: Selection<SVGGElement, unknown, null, undefined>;
   sliceG: Selection<SVGGElement, unknown, null, undefined>;
   labelG: Selection<SVGGElement, unknown, null, undefined>;
-  arcs: PieArcDatum<number | { valueOf(): number; }>[] = [];
+  arcs: PieArcDatum<number | { valueOf(): number }>[] = [];
   resizeSubscription: Subscription;
 
-  constructor(
-    public elementRef: ElementRef,
-    public resizeService: ResizeService
-  ) { }
+  constructor(public elementRef: ElementRef, public resizeService: ResizeService) {}
 
   ngOnInit() {
-    this.el = this.elementRef.nativeElement.querySelector('.ui-pie-chart-container');
+    this.el = this.elementRef.nativeElement.querySelector('.pie-chart-container');
     this.render();
 
-    this.resizeSubscription = this.resizeService.onResize$
-      .pipe(debounceTime(500))
-      .subscribe(() => this.render(true));
+    this.resizeSubscription = this.resizeService.onResize$.pipe(debounceTime(500)).subscribe(() => this.render(true));
   }
 
   ngOnChanges() {
@@ -85,12 +80,14 @@ export class PieChartComponent implements OnInit, OnChanges, OnDestroy {
 
     this.colors = scaleOrdinal()
       .domain(this.data.map((d: PieChartData) => d.id))
-      .range(this.options.colors.reduce((acc, curr, i) => {
-        if (this.data && this.data[i] && this.data[i].color) {
-          acc = acc.concat(this.data[i].color);
-        }
-        return acc.concat(curr);
-      }, []));
+      .range(
+        this.options.colors.reduce((acc, curr, i) => {
+          if (this.data && this.data[i] && this.data[i].color) {
+            acc = acc.concat(this.data[i].color);
+          }
+          return acc.concat(curr);
+        }, [])
+      );
 
     this.svg = this.svg || select(this.el).append('svg');
     this.svg
@@ -98,7 +95,10 @@ export class PieChartComponent implements OnInit, OnChanges, OnDestroy {
       .attr('height', this.height + this.options.margin.top + this.options.margin.bottom);
 
     this.g = this.g || this.svg.append('g');
-    this.g.attr('transform', `translate(${this.width / 2 + this.options.margin.left}, ${this.height / 2 + this.options.margin.top})`);
+    this.g.attr(
+      'transform',
+      `translate(${this.width / 2 + this.options.margin.left}, ${this.height / 2 + this.options.margin.top})`
+    );
     this.sliceG = this.sliceG || this.g.append('g');
     this.labelG = this.labelG || this.g.append('g');
 
@@ -114,8 +114,8 @@ export class PieChartComponent implements OnInit, OnChanges, OnDestroy {
         .attr('d', this.arc as any);
 
       if (this.options.labels) {
-        this.labelG.
-          selectAll('.label')
+        this.labelG
+          .selectAll('.label')
           .data(this.pie(this.data as any), (d: any) => d.data.id)
           .join('text')
           .attr('class', 'label')
@@ -139,11 +139,11 @@ export class PieChartComponent implements OnInit, OnChanges, OnDestroy {
           const ipolate = interpolate(this.arcs[i] || d, d);
           return (t: number) => this.arc(ipolate(t));
         })
-        .on('end', () => this.arcs = this.pie(this.data as any));
+        .on('end', () => (this.arcs = this.pie(this.data as any)));
 
       if (this.options.labels) {
-        this.labelG.
-          selectAll('.label')
+        this.labelG
+          .selectAll('.label')
           .data(this.pie(this.data as any), (d: any) => d.data.id)
           .join('text')
           .attr('class', 'label')
