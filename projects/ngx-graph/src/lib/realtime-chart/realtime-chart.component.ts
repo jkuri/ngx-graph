@@ -21,7 +21,7 @@ import { debounceTime } from 'rxjs/operators';
 import { ResizeService } from '../shared/resize.service';
 import { curveTypeMapping } from '../shared/chart.interface';
 import { defaultRealtimeChartOptions, RealtimeChartData, RealtimeChartOptions } from './realtime-chart.interface';
-import { diffInMillis, addSeconds, addMilliseconds, subMilliseconds, isBefore } from '../shared/time';
+import { diffInMillis, addSeconds, addMilliseconds } from '../shared/time';
 
 @Component({
   selector: 'ngx-realtime-chart',
