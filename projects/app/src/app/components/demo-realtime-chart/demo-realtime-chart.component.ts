@@ -33,7 +33,7 @@ export class DemoRealtimeChartComponent implements OnInit, OnDestroy {
   realtimeChartOptionsDark: RealtimeChartOptions = {
     height: 200,
     margin: { left: 40 },
-    lines: [{ color: '#FACF55', lineWidth: 3, area: true, areaColor: '#FACF55', areaOpacity: 0.5 }],
+    lines: [{ color: '#FACF55', lineWidth: 3, area: true, areaColor: '#FACF55', areaOpacity: 0.2 }],
     xGrid: {
       tickPadding: 15,
       tickNumber: 5,
@@ -54,7 +54,7 @@ export class DemoRealtimeChartComponent implements OnInit, OnDestroy {
     loadingMessage: 'Chart is initializing, please wait...',
     loadingOverlayColor: '#323B64',
     loadingTextColor: '#BEC6E0',
-    timeSlots: 120
+    timeSlots: 60
   };
   realtimeChartData = [[...this.data.generateRandomRealtimeData(60, 1, 0, 100)]];
 

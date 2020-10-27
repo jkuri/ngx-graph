@@ -14,6 +14,7 @@ import { HeaderComponent } from './components/header/header.component';
 import { ThemeService } from './providers/theme.service';
 import { ToggleComponent } from './components/toggle/toggle.component';
 import { LineChartFormModalComponent } from './components/line-chart-form-modal/line-chart-form-modal.component';
+import { ThemePickerComponent } from './components/theme-picker/theme-picker.component';
 
 @NgModule({
   declarations: [
@@ -23,7 +24,8 @@ import { LineChartFormModalComponent } from './components/line-chart-form-modal/
     DemoPieChartComponent,
     HeaderComponent,
     ToggleComponent,
-    LineChartFormModalComponent
+    LineChartFormModalComponent,
+    ThemePickerComponent
   ],
   imports: [
     BrowserModule,
@@ -37,4 +39,4 @@ import { LineChartFormModalComponent } from './components/line-chart-form-modal/
   providers: [DataService, ThemeService],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {}
