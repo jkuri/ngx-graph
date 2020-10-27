@@ -32,10 +32,7 @@
         "lint": {
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
-            "tsConfig": [
-              "projects/ngx-graph/tsconfig.lib.json",
-              "projects/ngx-graph/tsconfig.spec.json"
-            ],
+            "tsConfig": ["projects/ngx-graph/tsconfig.lib.json", "projects/ngx-graph/tsconfig.spec.json"],
             "exclude": ["**/node_modules/**"]
           }
         }

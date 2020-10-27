@@ -16,9 +16,18 @@ export class DemoRealtimeChartComponent implements OnInit, OnDestroy {
   realtimeChartOptionsBright: RealtimeChartOptions = {
     height: 200,
     margin: { left: 40 },
-    lines: [{ color: '#34B77C', lineWidth: 3, area: true, areaColor: '#34B77C', areaOpacity: 0.5 }],
-    xGrid: { tickPadding: 15, tickNumber: 10 },
-    yGrid: { min: 0, max: 100, tickNumber: 5, tickFormat: (v: number) => `${v}%`, tickPadding: 25 },
+    lines: [{ color: '#34B77C', lineWidth: 2, area: true, areaColor: '#34B77C', areaOpacity: 0.1 }],
+    xGrid: { tickPadding: 15, tickNumber: 10, tickFontSize: 10, tickFontWeight: 'bold', tickFontColor: '#718096' },
+    yGrid: {
+      min: 0,
+      max: 100,
+      tickNumber: 5,
+      tickFormat: (v: number) => `${v}%`,
+      tickPadding: 20,
+      tickFontWeight: 'bold',
+      tickFontColor: '#718096',
+      tickFontSize: 10
+    },
     timeSlots: 60
   };
   realtimeChartOptionsDark: RealtimeChartOptions = {
