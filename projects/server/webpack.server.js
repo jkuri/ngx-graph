@@ -1,40 +1,30 @@
-const path = require("path");
+const path = require('path');
 const root = path.resolve(__dirname);
-const TerserPlugin = require("terser-webpack-plugin");
+const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = {
   context: __dirname,
-  target: "node",
-  mode: "production",
-  resolve: { extensions: [".ts", ".js"] },
+  target: 'node',
+  mode: 'production',
+  resolve: { extensions: ['.ts', '.js'] },
   entry: {
-    server: path.join(root, "server.ts"),
+    server: path.join(root, 'server.ts')
   },
   output: {
-    path: path.join(root, "../..", "dist/app"),
-    filename: "[name].js",
+    path: path.join(root, '../..', 'dist/app'),
+    filename: '[name].js'
   },
   module: {
     rules: [
       {
         test: /\.ts$/,
-        loaders: ["ts-loader?silent=true&configFile=tsconfig.json"],
-      },
-    ],
+        use: [{ loader: 'ts-loader?silent=true&configFile=tsconfig.json' }]
+      }
+    ]
   },
   optimization: {
     minimize: true,
-    minimizer: [
-      new TerserPlugin({
-        cache: true,
-        terserOptions: {
-          output: {
-            comments: false,
-          },
-        },
-        extractComments: false,
-      }),
-    ],
+    minimizer: [new TerserPlugin()]
   },
   stats: {
     assets: false,
@@ -46,14 +36,11 @@ module.exports = {
     cachedAssets: false,
     chunkOrigins: false,
     modules: false,
-    warnings: false,
+    warnings: false
   },
   node: {
-    console: false,
     global: false,
-    process: false,
-    Buffer: false,
     __filename: false,
-    __dirname: false,
-  },
+    __dirname: false
+  }
 };

@@ -25,7 +25,8 @@ import { ResizeService } from '../shared/resize.service';
 import {
   getArea,
   getFormattedValue,
-  getLine, getScale,
+  getLine,
+  getScale,
   hexToRgb,
   LineChartData,
   LineChartEvent,
@@ -62,7 +63,7 @@ export class LineChartComponent implements OnInit, OnDestroy, DoCheck {
   props: LineChartProperties;
   inited: boolean;
   differ: KeyValueDiffer<any, any>;
-  dataDiffers: { id: string, differ: KeyValueDiffer<any, any> }[];
+  dataDiffers: { id: string; differ: KeyValueDiffer<any, any> }[];
   width: number;
   height: number;
   x: ScaleType;
@@ -79,11 +80,11 @@ export class LineChartComponent implements OnInit, OnDestroy, DoCheck {
   subs: Subscription;
   resizeSub: Subscription;
   differEvents: EventEmitter<void>;
-  legend: { items: { color: string, id: string }[] } = { items: [] };
+  legend: { items: { color: string; id: string }[] } = { items: [] };
   tooltip: {
-    title: string,
-    items: { color: string, id: string, value: string }[],
-    visible: boolean
+    title: string;
+    items: { color: string; id: string; value: string }[];
+    visible: boolean;
   } = { title: '', items: [], visible: false };
 
   constructor(
@@ -101,7 +102,7 @@ export class LineChartComponent implements OnInit, OnDestroy, DoCheck {
   ngOnInit() {
     this.el = this.elementRef.nativeElement.querySelector('.line-chart-container');
     this.differ = this.differs.find(this.options).create();
-    this.dataDiffers = this.data.map((data) => {
+    this.dataDiffers = this.data.map(data => {
       return { id: data.id, differ: this.differs.find(data).create() };
     });
 
@@ -111,7 +112,10 @@ export class LineChartComponent implements OnInit, OnDestroy, DoCheck {
         .pipe(
           filter(e => e.constructor.name === 'LineChartEventMouseMove'),
           distinctUntilChanged((p: LineChartEventMouseMove, c: LineChartEventMouseMove) => {
-            const [{ type: pmt, mouseX: pmx, mouseY: pmy, ...prev }, { type: cmt, mouseX: cmx, mouseY: cmy, ...curr }] = [p, c];
+            const [
+              { type: pmt, mouseX: pmx, mouseY: pmy, ...prev },
+              { type: cmt, mouseX: cmx, mouseY: cmy, ...curr }
+            ] = [p, c];
             return JSON.stringify(prev) === JSON.stringify(curr);
           })
         )
@@ -174,9 +178,7 @@ export class LineChartComponent implements OnInit, OnDestroy, DoCheck {
       this.applyStyles();
 
       if (!this.resizeSub) {
-        this.resizeSub = this.resizeService.onResize$
-          .pipe(debounceTime(500))
-          .subscribe(() => this.drawChart(true));
+        this.resizeSub = this.resizeService.onResize$.pipe(debounceTime(500)).subscribe(() => this.drawChart(true));
       }
 
       if (!this.inited) {
@@ -193,7 +195,9 @@ export class LineChartComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   private initSelectors(): void {
-    if (this.svg) { this.svg.remove(); }
+    if (this.svg) {
+      this.svg.remove();
+    }
     this.svg = select(this.el).select('.line-chart').append('svg');
     this.clipPath = this.svg.append('defs').append('clipPath').attr('id', 'clip').append('rect');
     this.g = this.svg.append('g');
@@ -212,7 +216,8 @@ export class LineChartComponent implements OnInit, OnDestroy, DoCheck {
     });
     this.mouseG = this.g.append('g').style('display', 'none');
     this.crosshairG.append('line').attr('class', 'focus-line-x').style('fill', 'none');
-    this.rect = this.svg.append('rect')
+    this.rect = this.svg
+      .append('rect')
       .attr('class', 'mouse-rect')
       .style('fill', 'none')
       .style('stroke', 'none')
@@ -224,7 +229,9 @@ export class LineChartComponent implements OnInit, OnDestroy, DoCheck {
 
     this.data.forEach((props: LineChartData, i: number) => {
       const line = this.lines[i];
-      const t = transition().duration(this.props.transitions ? this.props.transitionDuration : 0).ease(easeLinear);
+      const t = transition()
+        .duration(this.props.transitions ? this.props.transitionDuration : 0)
+        .ease(easeLinear);
       line.line = getLine(this.x, this.y, props.curve);
 
       if ((update && !preventAnimation) || (this.props.initialTransition && !this.inited)) {
@@ -267,20 +274,16 @@ export class LineChartComponent implements OnInit, OnDestroy, DoCheck {
             line.areaPath.attr('d', line.area(props.data.map(d => ({ ...d, y: min })) as any));
           }
 
-          line.areaPath
-            .transition(t)
-            .attrTween('d', (_, x, el) => {
-              const prev = select(el[x]).attr('d');
-              const next = line.area(props.data as any);
-              return interpolatePath(prev, next);
-            });
+          line.areaPath.transition(t).attrTween('d', (_, x, el) => {
+            const prev = select(el[x]).attr('d');
+            const next = line.area(props.data as any);
+            return interpolatePath(prev, next);
+          });
         } else {
           line.areaPath.attr('d', line.area(props.data as any));
         }
 
-        line.areaPath
-          .attr('fill', props.areaColor)
-          .attr('opacity', props.areaOpacity);
+        line.areaPath.attr('fill', props.areaColor).attr('opacity', props.areaOpacity);
       }
     });
   }
@@ -294,26 +297,33 @@ export class LineChartComponent implements OnInit, OnDestroy, DoCheck {
     }
 
     this.xAxis
-      .call(axisBottom(this.x as AxisScale<number | Date | { valueOf(): number; }>)
-        .tickSizeInner(this.props.xGrid.enable ? -this.height : 0)
-        .tickPadding(this.props.xGrid.tickPadding)
-        .tickValues(this.props.xGrid.text ? this.props.xGrid.tickValues ? this.props.xGrid.tickValues : null as any : [])
-        .ticks(null, typeof this.props.xGrid.tickFormat !== 'function' ? this.props.xGrid.tickFormat : null)
-        .tickFormat(typeof this.props.xGrid.tickFormat === 'function' ? this.props.xGrid.tickFormat : null)
-      ).attr('transform', `translate(0, ${this.height})`);
+      .call(
+        axisBottom(this.x as AxisScale<number | Date | { valueOf(): number }>)
+          .tickSizeInner(this.props.xGrid.enable ? -this.height : 0)
+          .tickPadding(this.props.xGrid.tickPadding)
+          .tickValues(
+            this.props.xGrid.text ? (this.props.xGrid.tickValues ? this.props.xGrid.tickValues : (null as any)) : []
+          )
+          .ticks(null, typeof this.props.xGrid.tickFormat !== 'function' ? this.props.xGrid.tickFormat : null)
+          .tickFormat(typeof this.props.xGrid.tickFormat === 'function' ? this.props.xGrid.tickFormat : null)
+      )
+      .attr('transform', `translate(0, ${this.height})`);
 
-    this.yAxis
-      .call(axisLeft(this.y as AxisScale<number | Date | { valueOf(): number; }>)
+    this.yAxis.call(
+      axisLeft(this.y as AxisScale<number | Date | { valueOf(): number }>)
         .tickSize(this.props.yGrid.enable ? -this.width : 0)
         .tickPadding(this.props.yGrid.tickPadding)
-        .tickValues(this.props.yGrid.text ? this.props.yGrid.tickValues ? this.props.yGrid.tickValues : null as any : [])
+        .tickValues(
+          this.props.yGrid.text ? (this.props.yGrid.tickValues ? this.props.yGrid.tickValues : (null as any)) : []
+        )
         .ticks(null, typeof this.props.yGrid.tickFormat !== 'function' ? this.props.yGrid.tickFormat : null)
         .tickFormat(typeof this.props.yGrid.tickFormat === 'function' ? this.props.yGrid.tickFormat : null)
-      );
+    );
   }
 
   private styleAxis(): void {
-    this.xAxis.selectAll('g.tick')
+    this.xAxis
+      .selectAll('g.tick')
       .select('line')
       .style('shape-rendering', 'crispEdges')
       .style('fill', 'none')
@@ -322,14 +332,16 @@ export class LineChartComponent implements OnInit, OnDestroy, DoCheck {
       .style('stroke-dasharray', this.props.xGrid.dashed ? '3 3' : '0')
       .style('opacity', this.props.xGrid.opacity);
 
-    this.xAxis.selectAll('g.tick')
+    this.xAxis
+      .selectAll('g.tick')
       .selectAll('text')
       .attr('text-anchor', this.props.xGrid.tickTextAnchor)
       .style('fill', this.props.xGrid.textColor)
       .style('font-size', this.props.xGrid.textSize)
       .style('font-family', this.props.xGrid.fontFamily);
 
-    this.yAxis.selectAll('g.tick')
+    this.yAxis
+      .selectAll('g.tick')
       .select('line')
       .style('shape-rendering', 'crispEdges')
       .style('fill', 'none')
@@ -338,16 +350,15 @@ export class LineChartComponent implements OnInit, OnDestroy, DoCheck {
       .style('stroke-dasharray', this.props.yGrid.dashed ? '3 3' : '0')
       .style('opacity', this.props.yGrid.opacity);
 
-    this.yAxis.selectAll('g.tick')
+    this.yAxis
+      .selectAll('g.tick')
       .selectAll('text')
       .attr('text-anchor', this.props.yGrid.tickTextAnchor)
       .style('fill', this.props.yGrid.textColor)
       .style('font-size', this.props.yGrid.textSize)
       .style('font-family', this.props.yGrid.fontFamily);
 
-    this.svg.selectAll('.axis')
-      .select('path')
-      .style('display', 'none');
+    this.svg.selectAll('.axis').select('path').style('display', 'none');
   }
 
   private calculateSize(): void {
@@ -382,9 +393,7 @@ export class LineChartComponent implements OnInit, OnDestroy, DoCheck {
       case 'bottom':
       case 'bottom-left':
       case 'bottom-right':
-        legendEl
-          .attr('class', 'legend-container is-horizontal')
-          .style('bottom', `${this.props.legendMargin.bottom}px`);
+        legendEl.attr('class', 'legend-container is-horizontal').style('bottom', `${this.props.legendMargin.bottom}px`);
 
         if (this.props.legendPosition === 'bottom-left') {
           legendEl.style('left', `${this.props.legendMargin.left}px`);
@@ -403,9 +412,7 @@ export class LineChartComponent implements OnInit, OnDestroy, DoCheck {
       case 'top':
       case 'top-left':
       case 'top-right':
-        legendEl
-          .attr('class', 'legend-container is-horizontal')
-          .style('top', `${this.props.legendMargin.top}px`);
+        legendEl.attr('class', 'legend-container is-horizontal').style('top', `${this.props.legendMargin.top}px`);
 
         if (this.props.legendPosition === 'top-left') {
           legendEl.style('left', `${this.props.legendMargin.left}px`);
@@ -421,9 +428,11 @@ export class LineChartComponent implements OnInit, OnDestroy, DoCheck {
   private drawMarkers(line: LineType, props: LineChartData): void {
     line.markers = line.g.append('g');
 
-    line.markers.selectAll('.dot')
+    line.markers
+      .selectAll('.dot')
       .data(props.data)
-      .enter().append('circle')
+      .enter()
+      .append('circle')
       .attr('class', 'dot')
       .attr('cx', (dd: any) => this.x(dd.x))
       .attr('cy', (dd: any) => this.y(dd.y))
@@ -435,12 +444,15 @@ export class LineChartComponent implements OnInit, OnDestroy, DoCheck {
       .attr('stroke', props.markerColor)
       .attr('stroke-width', 1);
 
-    line.markers.selectAll('.inner-dot').data(props.data)
-      .enter().append('circle')
+    line.markers
+      .selectAll('.inner-dot')
+      .data(props.data)
+      .enter()
+      .append('circle')
       .attr('class', 'inner-dot')
       .attr('cx', (dd: any) => this.x(dd.x))
       .attr('cy', (dd: any) => this.y(dd.y))
-      .attr('r', props.markerSize - (props.markerSize / 2))
+      .attr('r', props.markerSize - props.markerSize / 2)
       .attr('fill', props.markerColor)
       .attr('stroke', props.markerColor)
       .attr('class', 'inner-dot');
@@ -490,10 +502,9 @@ export class LineChartComponent implements OnInit, OnDestroy, DoCheck {
       })
       .on('click', (_, i, nodes) => this.onMouseClick(nodes[i]));
 
-    this.svg
-      .on('mouseout', () => {
-        this.setMouseEventsSelectors('none');
-      });
+    this.svg.on('mouseout', () => {
+      this.setMouseEventsSelectors('none');
+    });
   }
 
   private setMouseEventsSelectors(display: null | 'none' = null): void {
@@ -508,11 +519,7 @@ export class LineChartComponent implements OnInit, OnDestroy, DoCheck {
     const [x] = this.getBisect(node, data);
 
     if (this.props.interaction.axisLine) {
-      this.crosshairG.select('.focus-line-x')
-        .attr('x1', x)
-        .attr('y1', 0)
-        .attr('x2', x)
-        .attr('y2', this.height);
+      this.crosshairG.select('.focus-line-x').attr('x1', x).attr('y1', 0).attr('x2', x).attr('y2', this.height);
     }
 
     const yarr = [];
@@ -521,11 +528,12 @@ export class LineChartComponent implements OnInit, OnDestroy, DoCheck {
     this.data.forEach(l => {
       const [cx, cy, ii] = this.getBisect(node, l.data);
       if (this.props.interaction.tickMarker) {
-        this.mouseG.append('circle')
+        this.mouseG
+          .append('circle')
           .attr('class', 'focus-circle')
           .attr('r', this.props.interaction.tickMarkerSize)
           .attr('fill', l.markerColor)
-          .attr('opacity', .4)
+          .attr('opacity', 0.4)
           .attr('cx', cx)
           .attr('cy', cy);
       }
@@ -553,14 +561,17 @@ export class LineChartComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   private onMouseClick(node: SVGElement): void {
-    const data = this.data.reduce((acc, curr) => {
-      const [, , j] = this.getBisect(node, curr.data);
-      const props = { id: curr.id, color: curr.color };
-      return {
-        x: acc.x.concat({ ...props, value: curr.data[j].x }),
-        y: acc.y.concat({ ...props, value: curr.data[j].y })
-      };
-    }, { x: [], y: [] });
+    const data = this.data.reduce(
+      (acc, curr) => {
+        const [, , j] = this.getBisect(node, curr.data);
+        const props = { id: curr.id, color: curr.color };
+        return {
+          x: acc.x.concat({ ...props, value: curr.data[j].x }),
+          y: acc.y.concat({ ...props, value: curr.data[j].y })
+        };
+      },
+      { x: [], y: [] }
+    );
 
     const evClick = new LineChartEventClick('click', data.x, data.y);
     this.events.emit(evClick);
@@ -568,14 +579,19 @@ export class LineChartComponent implements OnInit, OnDestroy, DoCheck {
 
   private onMouseMove(node: SVGElement): void {
     const [mouseX, mouseY] = mouse(node as ContainerElement);
-    const { x, y } = this.data.reduce((acc, curr) => {
-      const [, , j] = this.getBisect(node, curr.data);
-      const props = { id: curr.id, color: curr.color };
-      return curr.data[j] ? {
-        x: acc.x.concat({ ...props, value: curr.data[j].x }),
-        y: acc.y.concat({ ...props, value: curr.data[j].y })
-      } : acc;
-    }, { x: [], y: [] });
+    const { x, y } = this.data.reduce(
+      (acc, curr) => {
+        const [, , j] = this.getBisect(node, curr.data);
+        const props = { id: curr.id, color: curr.color };
+        return curr.data[j]
+          ? {
+              x: acc.x.concat({ ...props, value: curr.data[j].x }),
+              y: acc.y.concat({ ...props, value: curr.data[j].y })
+            }
+          : acc;
+      },
+      { x: [], y: [] }
+    );
 
     const evMouseMove = new LineChartEventMouseMove('mousemove', x, y, mouseX, mouseY);
     this.events.emit(evMouseMove);
@@ -583,10 +599,16 @@ export class LineChartComponent implements OnInit, OnDestroy, DoCheck {
 
   private showTooltip(left: number, top: number, i: number): void {
     this.tooltip.visible = true;
-    this.tooltip.title = this.data[0] && this.data[0].data[i] ?
-      getFormattedValue(this.data[0].data[i].x, this.props.interaction.xFormat) : '';
+    this.tooltip.title =
+      this.data[0] && this.data[0].data[i]
+        ? getFormattedValue(this.data[0].data[i].x, this.props.interaction.xFormat)
+        : '';
     this.tooltip.items = this.data
-      .reduce((acc, curr) => curr.data[i] ? acc.concat({ color: curr.markerColor, id: curr.id, value: curr.data[i].y }) : acc, [])
+      .reduce(
+        (acc, curr) =>
+          curr.data[i] ? acc.concat({ color: curr.markerColor, id: curr.id, value: curr.data[i].y }) : acc,
+        []
+      )
       .map(x => ({ ...x, color: hexToRgb(x.color) }));
 
     const tooltipEl = select(this.el).select('.tooltip-container');
