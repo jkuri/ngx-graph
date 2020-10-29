@@ -12,3 +12,6 @@ export * from './lib/pie-chart/pie-chart.module';
 export * from './lib/realtime-chart/realtime-chart.interface';
 export * from './lib/realtime-chart/realtime-chart.component';
 export * from './lib/realtime-chart/realtime-chart.module';
+
+export * from './lib/realtime-canvas-chart/realtime-canvas-chart.component';
+export * from './lib/realtime-canvas-chart/realtime-canvas-chart.module';

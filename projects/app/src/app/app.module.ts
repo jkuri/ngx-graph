@@ -2,7 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LineChartModule, RealtimeChartModule, PieChartModule } from 'ngx-graph';
+import { LineChartModule, RealtimeChartModule, PieChartModule, RealtimeCanvasChartModule } from 'ngx-graph';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -15,6 +15,7 @@ import { ThemeService } from './providers/theme.service';
 import { ToggleComponent } from './components/toggle/toggle.component';
 import { LineChartFormModalComponent } from './components/line-chart-form-modal/line-chart-form-modal.component';
 import { ThemePickerComponent } from './components/theme-picker/theme-picker.component';
+import { DemoRealtimeCanvasChartComponent } from './components/demo-realtime-canvas-chart/demo-realtime-canvas-chart.component';
 
 @NgModule({
   declarations: [
@@ -25,7 +26,8 @@ import { ThemePickerComponent } from './components/theme-picker/theme-picker.com
     HeaderComponent,
     ToggleComponent,
     LineChartFormModalComponent,
-    ThemePickerComponent
+    ThemePickerComponent,
+    DemoRealtimeCanvasChartComponent
   ],
   imports: [
     BrowserModule,
@@ -34,7 +36,8 @@ import { ThemePickerComponent } from './components/theme-picker/theme-picker.com
     AppRoutingModule,
     LineChartModule,
     RealtimeChartModule,
-    PieChartModule
+    PieChartModule,
+    RealtimeCanvasChartModule
   ],
   providers: [DataService, ThemeService],
   bootstrap: [AppComponent]
