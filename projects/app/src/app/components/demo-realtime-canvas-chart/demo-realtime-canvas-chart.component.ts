@@ -10,8 +10,8 @@ import { DataService } from '../../providers/data.service';
 })
 export class DemoRealtimeCanvasChartComponent implements OnInit {
   options: RealtimeCanvasChartOptions = {
-    height: 200,
-    fps: 30
+    height: 300,
+    fps: 24
   };
   data = [[...this.dataService.generateRandomRealtimeData(60, 1, 0, 100)]];
 
