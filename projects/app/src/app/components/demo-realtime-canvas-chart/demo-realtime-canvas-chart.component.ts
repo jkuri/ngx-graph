@@ -10,8 +10,20 @@ import { DataService } from '../../providers/data.service';
 })
 export class DemoRealtimeCanvasChartComponent implements OnInit {
   options: RealtimeCanvasChartOptions = {
-    height: 300,
-    fps: 24
+    height: 200,
+    margin: { left: 40, top: 10 },
+    fps: 24,
+    xGrid: { tickPadding: 15, tickNumber: 10, tickFontSize: 10, tickFontWeight: 'bold', tickFontColor: '#718096' },
+    yGrid: {
+      min: 0,
+      max: 100,
+      tickNumber: 5,
+      tickFormat: (v: number) => `${v}%`,
+      tickPadding: 20,
+      tickFontWeight: 'bold',
+      tickFontColor: '#718096',
+      tickFontSize: 10
+    }
   };
   data = [[...this.dataService.generateRandomRealtimeData(60, 1, 0, 100)]];
 
