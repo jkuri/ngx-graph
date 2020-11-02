@@ -14,6 +14,7 @@ import { subSeconds } from 'date-fns';
 import { Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { hexToRgb } from '../line-chart/line-chart.class';
+import { curveTypeMapping } from '../shared/chart.interface';
 
 @Component({
   selector: 'ngx-realtime-canvas-chart',
@@ -72,14 +73,12 @@ export class RealtimeCanvasChartComponent implements OnInit, OnDestroy {
     this.line = line()
       .x((d: any) => this.x(d.date))
       .y((d: any) => this.y(d.value))
-      .curve(curveBasis)
       .context(this.context);
 
     this.area = area()
       .x((d: any) => this.x(d.date))
       .y1((d: any) => this.y(d.value))
       .y0(this.height)
-      .curve(curveBasis)
       .context(this.context);
 
     this.interval = setInterval(() => this.drawChart(), 1000 / this.options.fps);
@@ -101,6 +100,7 @@ export class RealtimeCanvasChartComponent implements OnInit, OnDestroy {
 
     this.data.forEach((d, i) => {
       this.context.beginPath();
+      this.line.curve(curveTypeMapping[this.options.lines[i].curve]);
       this.line(d as any);
       this.context.lineWidth = this.options.lines[i].lineWidth;
       this.context.strokeStyle = `rgba(${hexToRgb(this.options.lines[i].color)}, ${this.options.lines[i].opacity})`;
@@ -113,6 +113,7 @@ export class RealtimeCanvasChartComponent implements OnInit, OnDestroy {
     this.data.forEach((d, i) => {
       if (this.options.lines[i].area) {
         this.context.beginPath();
+        this.area.curve(curveTypeMapping[this.options.lines[i].curve]);
         this.area(d as any);
         this.context.fillStyle = `rgba(${hexToRgb(this.options.lines[i].areaColor)}, ${
           this.options.lines[i].areaOpacity
@@ -136,9 +137,11 @@ export class RealtimeCanvasChartComponent implements OnInit, OnDestroy {
 
       const now = new Date();
       const last = (data && data.length && data[data.length - 1]) || { date: now, value: 0 };
-      if (now.getTime() - last.date.getTime() > 1000) {
+      if (last.date === now || now.getTime() - last.date.getTime() > 1000) {
         data.push({ date: now, value: last.value });
-        data.splice(0, 1);
+        if (data.length - 1 > this.options.timeSlots) {
+          data.splice(0, data.length - this.options.timeSlots);
+        }
       }
 
       return data;
@@ -146,11 +149,10 @@ export class RealtimeCanvasChartComponent implements OnInit, OnDestroy {
   }
 
   private setDomains(): void {
-    const n = (this.data && this.data[0].length) || 0;
     this.x = scaleTime().range([0, this.width]);
     this.y = scaleLinear().range([this.height, 0]);
 
-    this.x.domain([subSeconds(new Date(), n - 2), subSeconds(new Date(), 2)]);
+    this.x.domain([subSeconds(new Date(), this.options.timeSlots - 2), subSeconds(new Date(), 2)]);
 
     const values = this.data.reduce((acc, curr) => acc.concat(curr.map((d: any) => d.value)), []);
     const [minv, maxv] = [Number(min(values as any)), Number(max(values as any))];
