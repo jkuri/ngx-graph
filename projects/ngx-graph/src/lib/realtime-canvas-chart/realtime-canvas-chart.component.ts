@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, OnChanges, OnInit, Renderer2 } from '@angular/core';
+import { Component, ElementRef, Input, OnDestroy, OnInit, Renderer2 } from '@angular/core';
 import { ResizeService } from '../shared/resize.service';
 import {
   defaultRealtimeCanvasChartOptions,
@@ -7,17 +7,19 @@ import {
 } from './realtime-canvas-chart.interface';
 import { scaleLinear, ScaleLinear, scaleTime, ScaleTime } from 'd3-scale';
 import { select, Selection } from 'd3-selection';
-import { area, Area, line, Line, curveStep, curveBasis } from 'd3-shape';
-import { extent, min } from 'd3-array';
+import { area, Area, line, Line, curveBasis } from 'd3-shape';
+import { min, max } from 'd3-array';
 import { Axis, axisBottom, axisLeft } from 'd3-axis';
-import { addMilliseconds, subMilliseconds, subSeconds } from 'date-fns';
+import { subSeconds } from 'date-fns';
+import { Subscription } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 
 @Component({
   selector: 'ngx-realtime-canvas-chart',
   templateUrl: './realtime-canvas-chart.component.html',
   styleUrls: ['./realtime-canvas-chart.component.sass']
 })
-export class RealtimeCanvasChartComponent implements OnInit, OnChanges {
+export class RealtimeCanvasChartComponent implements OnInit, OnDestroy {
   @Input() data: RealtimeCanvasChartData[][] = [];
   @Input() options: RealtimeCanvasChartOptions;
 
@@ -35,34 +37,25 @@ export class RealtimeCanvasChartComponent implements OnInit, OnChanges {
   g: Selection<SVGGElement, unknown, null, undefined>;
   xAxis: Selection<SVGGElement, unknown, null, undefined>;
   yAxis: Selection<SVGGElement, unknown, null, undefined>;
-  clipPath: Selection<SVGRectElement, unknown, null, undefined>;
-  clipPathURL: string;
+  interval: any;
+  subs: Subscription = new Subscription();
 
   constructor(private elementRef: ElementRef, private resizeService: ResizeService, private renderer: Renderer2) {}
 
   ngOnInit(): void {
     this.initChart();
+    this.subs.add(this.resizeService.onResize$.pipe(debounceTime(500)).subscribe(() => this.redrawChart()));
   }
 
-  ngOnChanges(): void {
-    if (!this.el) {
-      return;
-    }
-
-    // this.drawChart();
+  ngOnDestroy(): void {
+    clearInterval(this.interval);
+    this.subs.unsubscribe();
   }
 
   private initChart(): void {
     this.el = this.elementRef.nativeElement.querySelector('.realtime-canvas-chart-container');
     this.svg = select(this.el).append('svg');
     this.g = this.svg.append('g');
-    this.clipPath = this.svg
-      .append('defs')
-      .append('clipPath')
-      .attr('id', `${this.id}-clip`)
-      .append('rect')
-      .attr('transform', `translate(0, 0)`);
-    this.clipPathURL = `url(${location.href}#${this.id}-clip)`;
     this.canvas = this.el.querySelector('canvas');
     this.context = this.canvas.getContext('2d');
 
@@ -93,11 +86,14 @@ export class RealtimeCanvasChartComponent implements OnInit, OnChanges {
   }
 
   private updateChart(): void {
-    const animate = () => {
-      this.drawChart();
-    };
+    const animate = () => this.drawChart();
+    this.interval = setInterval(animate, 1000 / this.options.fps);
+  }
 
-    const interval = setInterval(animate, 1000 / this.options.fps);
+  private redrawChart(): void {
+    clearInterval(this.interval);
+    this.svg.remove();
+    this.initChart();
   }
 
   private drawChart(): void {
@@ -141,11 +137,20 @@ export class RealtimeCanvasChartComponent implements OnInit, OnChanges {
   }
 
   private setDomains(): void {
+    const n = (this.data && this.data[0].length) || 0;
     this.x = scaleTime().range([0, this.width]);
     this.y = scaleLinear().range([this.height, 0]);
 
-    this.x.domain([subSeconds(new Date(), 59), subSeconds(new Date(), 2)]);
-    this.y.domain([0, 100]);
+    this.x.domain([subSeconds(new Date(), n - 2), subSeconds(new Date(), 2)]);
+
+    const values = this.data.reduce((acc, curr) => acc.concat(curr.map((d: any) => d.value)), []);
+    const [minv, maxv] = [Number(min(values as any)), Number(max(values as any))];
+    const factor = (maxv - minv) * 0.05;
+    const [ymin, ymax] = [
+      this.options.yGrid.min === 'auto' ? Number(minv) - factor : this.options.yGrid.min,
+      this.options.yGrid.max === 'auto' ? Number(maxv) + factor : this.options.yGrid.max
+    ];
+    this.y.domain([ymin, ymax]);
   }
 
   private drawAxes(): void {
@@ -245,8 +250,8 @@ export class RealtimeCanvasChartComponent implements OnInit, OnChanges {
 
     this.g.attr('transform', `translate(${this.options.margin.left}, ${this.options.margin.top})`);
 
-    this.clipPath.attr('width', this.width).attr('height', this.height);
-
+    this.renderer.setStyle(this.canvas, 'width', this.width + 'px');
+    this.renderer.setStyle(this.canvas, 'height', this.height + 'px');
     this.renderer.setStyle(this.canvas, 'top', this.options.margin.top + 'px');
     this.renderer.setStyle(this.canvas, 'left', this.options.margin.left + 'px');
   }
@@ -259,9 +264,5 @@ export class RealtimeCanvasChartComponent implements OnInit, OnChanges {
     };
     this.options.xGrid = { ...defaultRealtimeCanvasChartOptions.xGrid, ...(this.options.xGrid || {}) };
     this.options.yGrid = { ...defaultRealtimeCanvasChartOptions.yGrid, ...(this.options.yGrid || {}) };
-  }
-
-  private getData(): RealtimeCanvasChartData[] {
-    return this.data.reduce((acc, curr) => acc.concat(curr), []);
   }
 }
