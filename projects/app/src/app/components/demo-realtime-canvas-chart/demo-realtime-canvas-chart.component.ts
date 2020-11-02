@@ -13,6 +13,7 @@ export class DemoRealtimeCanvasChartComponent implements OnInit {
     height: 200,
     margin: { left: 40, top: 10 },
     fps: 24,
+    timeSlots: 60,
     xGrid: { tickPadding: 15, tickNumber: 10, tickFontSize: 10, tickFontWeight: 'normal', tickFontColor: '#718096' },
     yGrid: {
       min: 0,
@@ -23,14 +24,15 @@ export class DemoRealtimeCanvasChartComponent implements OnInit {
       tickFontWeight: 'normal',
       tickFontColor: '#718096',
       tickFontSize: 10
-    }
+    },
+    lines: [{ color: '#FACF55', opacity: 1, area: true, areaColor: '#FACF55', areaOpacity: 0.6 }]
   };
   data = [[...this.dataService.generateRandomRealtimeData(60, 1, 0, 100)]];
 
   constructor(private dataService: DataService) {}
 
   ngOnInit(): void {
-    timer(0, 1000).subscribe(() => {
+    timer(0, 2000).subscribe(() => {
       this.data[0].push({ date: new Date(), value: this.dataService.randomInt(0, 100) });
       this.data[0].splice(0, 1);
     });

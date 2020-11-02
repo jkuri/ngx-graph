@@ -1,6 +1,19 @@
+import { CurveType } from '../shared/chart.interface';
+import { Colors } from '../shared/color';
+
 export interface RealtimeCanvasChartData {
   date: Date;
   value: number;
+}
+
+export interface RealtimeCanvasChartLineOptions {
+  color?: string;
+  opacity?: number;
+  lineWidth?: number;
+  area?: boolean;
+  areaColor?: string;
+  areaOpacity?: number;
+  curve?: CurveType;
 }
 
 interface RealtimeCanvasChartGridOptions {
@@ -35,13 +48,17 @@ export interface RealtimeCanvasChartOptions {
   height?: number;
   margin?: { top?: number; right?: number; bottom?: number; left?: number };
   fps?: number;
+  timeSlots?: number;
+  lines?: RealtimeCanvasChartLineOptions[];
   xGrid?: RealtimeCanvasChartXGridOptions;
   yGrid?: RealtimeCanvasChartYGridOptions;
+  colors?: string[];
 }
 
 export const defaultRealtimeCanvasChartOptions: RealtimeCanvasChartOptions = {
   margin: { top: 25, right: 25, bottom: 25, left: 25 },
   fps: 24,
+  timeSlots: 60,
   xGrid: {
     enable: true,
     color: '#e9e9e9',
@@ -73,5 +90,6 @@ export const defaultRealtimeCanvasChartOptions: RealtimeCanvasChartOptions = {
     tickFontSize: 10,
     tickFontFamily: 'sans-serif',
     tickFontAnchor: 'middle'
-  }
+  },
+  colors: Colors
 };

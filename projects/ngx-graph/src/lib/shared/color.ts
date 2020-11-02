@@ -22,8 +22,8 @@ export const ColorsSchemeOrange = createScheme(colors.orange);
 function createScheme(hex: string): string[] {
   const clr = color(hex);
   return [].concat(
-    ...[.2, .4, .6, .8].map(i => clr.brighter(i).hex()),
+    ...[0.2, 0.4, 0.6, 0.8].map(i => clr.brighter(i).hex()),
     hex,
-    ...[.2, .4, .6, .8].map(i => clr.darker(i).hex())
+    ...[0.2, 0.4, 0.6, 0.8].map(i => clr.darker(i).hex())
   );
 }

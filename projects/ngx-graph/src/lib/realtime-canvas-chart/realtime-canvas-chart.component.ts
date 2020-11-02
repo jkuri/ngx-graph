@@ -13,6 +13,7 @@ import { Axis, axisBottom, axisLeft } from 'd3-axis';
 import { subSeconds } from 'date-fns';
 import { Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
+import { hexToRgb } from '../line-chart/line-chart.class';
 
 @Component({
   selector: 'ngx-realtime-canvas-chart',
@@ -81,13 +82,7 @@ export class RealtimeCanvasChartComponent implements OnInit, OnDestroy {
       .curve(curveBasis)
       .context(this.context);
 
-    this.drawChart();
-    this.updateChart();
-  }
-
-  private updateChart(): void {
-    const animate = () => this.drawChart();
-    this.interval = setInterval(animate, 1000 / this.options.fps);
+    this.interval = setInterval(() => this.drawChart(), 1000 / this.options.fps);
   }
 
   private redrawChart(): void {
@@ -100,38 +95,52 @@ export class RealtimeCanvasChartComponent implements OnInit, OnDestroy {
     this.g.selectAll('*').remove();
 
     this.drawAxes();
-    this.dropOldData();
+    this.updateData();
 
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.context.beginPath();
 
-    this.data.forEach(d => this.line(d as any));
+    this.data.forEach((d, i) => {
+      this.context.beginPath();
+      this.line(d as any);
+      this.context.lineWidth = this.options.lines[i].lineWidth;
+      this.context.strokeStyle = `rgba(${hexToRgb(this.options.lines[i].color)}, ${this.options.lines[i].opacity})`;
+      this.context.lineCap = 'round';
+      this.context.lineJoin = 'round';
+      this.context.stroke();
+      this.context.closePath();
+    });
 
-    this.context.lineWidth = 1.5;
-    this.context.strokeStyle = '#34B77C';
-    this.context.lineCap = 'round';
-    this.context.lineJoin = 'round';
-    this.context.stroke();
-    this.context.closePath();
-
-    this.context.beginPath();
-
-    this.data.forEach(d => this.area(d as any));
-
-    this.context.fillStyle = 'rgba(52, 183, 124, 0.2)';
-    this.context.fill();
+    this.data.forEach((d, i) => {
+      if (this.options.lines[i].area) {
+        this.context.beginPath();
+        this.area(d as any);
+        this.context.fillStyle = `rgba(${hexToRgb(this.options.lines[i].areaColor)}, ${
+          this.options.lines[i].areaOpacity
+        })`;
+        this.context.fill();
+        this.context.closePath();
+      }
+    });
   }
 
-  private dropOldData(): void {
-    const validTime = subSeconds(new Date(), 60);
+  private updateData(): void {
+    const validTime = subSeconds(new Date(), this.options.timeSlots);
     this.data = this.data.map(data => {
       let count = 0;
-      while (data.length - count >= 60 && data[count + 1].date < validTime) {
+      while (data.length - count >= this.options.timeSlots && data[count + 1].date < validTime) {
         count++;
       }
       if (count > 0) {
         data.splice(0, count);
       }
+
+      const now = new Date();
+      const last = (data && data.length && data[data.length - 1]) || { date: now, value: 0 };
+      if (now.getTime() - last.date.getTime() > 1000) {
+        data.push({ date: now, value: last.value });
+        data.splice(0, 1);
+      }
+
       return data;
     });
   }
@@ -264,5 +273,20 @@ export class RealtimeCanvasChartComponent implements OnInit, OnDestroy {
     };
     this.options.xGrid = { ...defaultRealtimeCanvasChartOptions.xGrid, ...(this.options.xGrid || {}) };
     this.options.yGrid = { ...defaultRealtimeCanvasChartOptions.yGrid, ...(this.options.yGrid || {}) };
+    this.options.lines = this.options.lines || [];
+    (this.data || []).forEach((d: any, i: number) => {
+      this.options.lines[i] = {
+        ...{
+          color: this.options.colors[i],
+          opacity: 1,
+          lineWidth: 2,
+          area: true,
+          areaColor: this.options.colors[i],
+          areaOpacity: 0.1,
+          curve: 'basis'
+        },
+        ...this.options.lines[i]
+      };
+    });
   }
 }

@@ -55,5 +55,5 @@ export const curveTypeMapping: { [name: string]: CurveFactory } = {
   natural: curveNatural,
   step: curveStep,
   stepAfter: curveStepAfter,
-  stepBefore: curveStepBefore,
+  stepBefore: curveStepBefore
 };
