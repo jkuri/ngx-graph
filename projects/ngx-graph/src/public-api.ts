@@ -16,3 +16,7 @@ export * from './lib/realtime-chart/realtime-chart.module';
 export * from './lib/realtime-canvas-chart/realtime-canvas-chart.interface';
 export * from './lib/realtime-canvas-chart/realtime-canvas-chart.component';
 export * from './lib/realtime-canvas-chart/realtime-canvas-chart.module';
+
+export * from './lib/bar-chart/bar-chart.interface';
+export * from './lib/bar-chart/bar-chart.component';
+export * from './lib/bar-chart/bar-chart.module';
