@@ -4,6 +4,7 @@
   "lib": {
     "entryFile": "src/public-api.ts",
     "umdModuleIds": {
+      "date-fns": "date-fns",
       "d3-selection": "d3-selection",
       "d3-axis": "d3-axis",
       "d3-shape": "d3-shape",
