@@ -8,7 +8,7 @@ import { ResizeService } from '../shared/resize.service';
 import { Subscription } from 'rxjs';
 
 @Component({
-  selector: 'app-bar-chart',
+  selector: 'ngx-bar-chart',
   templateUrl: './bar-chart.component.html',
   styleUrls: ['./bar-chart.component.sass']
 })
