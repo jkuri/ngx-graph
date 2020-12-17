@@ -7,7 +7,7 @@ import {
 } from './realtime-canvas-chart.interface';
 import { scaleLinear, ScaleLinear, scaleTime, ScaleTime } from 'd3-scale';
 import { select, Selection } from 'd3-selection';
-import { area, Area, line, Line, curveBasis } from 'd3-shape';
+import { area, Area, line, Line } from 'd3-shape';
 import { min, max } from 'd3-array';
 import { Axis, axisBottom, axisLeft } from 'd3-axis';
 import { subSeconds } from 'date-fns';
@@ -94,9 +94,12 @@ export class RealtimeCanvasChartComponent implements OnInit, OnDestroy {
     this.g.selectAll('*').remove();
 
     this.drawAxes();
-    this.updateData();
 
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+    this.data.forEach((d, i) => {
+      this.data[i] = this.updateData(d);
+    });
 
     this.data.forEach((d, i) => {
       this.context.beginPath();
@@ -124,28 +127,25 @@ export class RealtimeCanvasChartComponent implements OnInit, OnDestroy {
     });
   }
 
-  private updateData(): void {
+  private updateData(data: RealtimeCanvasChartData[]): RealtimeCanvasChartData[] {
     const validTime = subSeconds(new Date(), this.options.timeSlots);
-    this.data = this.data.map(data => {
-      let count = 0;
-      while (data.length - count >= this.options.timeSlots && data[count + 1].date < validTime) {
-        count++;
+    data = data.filter(Boolean).sort((a, b) => (a.date > b.date ? 1 : -1));
+    let count = 0;
+    while (data.length - count >= this.options.timeSlots && data[count + 1].date < validTime) {
+      count++;
+    }
+    if (count > 0) {
+      data.splice(0, count);
+    }
+    const now = new Date();
+    const last = (data && data.length && data[data.length - 1]) || { date: now, value: 0 };
+    if (last.date === now || now.getTime() - last.date.getTime() > 1000) {
+      data.push({ date: now, value: last.value });
+      if (data.length - 1 > this.options.timeSlots) {
+        data.splice(0, data.length - this.options.timeSlots);
       }
-      if (count > 0) {
-        data.splice(0, count);
-      }
-
-      const now = new Date();
-      const last = (data && data.length && data[data.length - 1]) || { date: now, value: 0 };
-      if (last.date === now || now.getTime() - last.date.getTime() > 1000) {
-        data.push({ date: now, value: last.value });
-        if (data.length - 1 > this.options.timeSlots) {
-          data.splice(0, data.length - this.options.timeSlots);
-        }
-      }
-
-      return data;
-    });
+    }
+    return data;
   }
 
   private setDomains(): void {

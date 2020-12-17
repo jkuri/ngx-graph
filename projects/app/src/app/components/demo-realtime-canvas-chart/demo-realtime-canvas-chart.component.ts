@@ -38,16 +38,14 @@ export class DemoRealtimeCanvasChartComponent implements OnInit {
     },
     lines: [{ color: '#FACF55', opacity: 1, area: true, areaColor: '#FACF55', areaOpacity: 0.6, curve: 'basis' }]
   };
-  data = [[...this.dataService.generateRandomRealtimeData(60, 1, 0, 100)]];
+  data = [[]];
 
   constructor(private dataService: DataService) {}
 
   ngOnInit(): void {
+    this.data = [[...this.dataService.generateRandomRealtimeData(120, 1, 0, 100)]];
     timer(0, 2000).subscribe(() => {
       this.data[0].push({ date: new Date(), value: this.dataService.randomInt(0, 100) });
-      if (this.data[0].length - 1 > this.timeSlots) {
-        this.data[0].splice(0, 1);
-      }
     });
   }
 }
