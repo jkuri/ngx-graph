@@ -10,41 +10,37 @@ import { DataService } from '../../providers/data.service';
 export class DemoBarChartComponent implements OnInit {
   options: BarChartOptions = {
     height: 300,
-    margin: { top: 20, right: 0, bottom: 30, left: 80 },
+    margin: { top: 10, right: 30, bottom: 30, left: 40 },
     yGrid: {
       min: 0,
-      max: 25000,
+      // max: 80,
       tickFontSize: 11,
       tickFormat: (v: number | Date) => `€ ${v}`,
-      tickPadding: 40,
+      tickPadding: 20,
       tickNumber: 6,
       tickFontWeight: 600
     },
     xGrid: { tickPadding: 10, tickFontSize: 11, color: '#ffffff', tickFontWeight: 600 },
-    colors: ['#3F87F5'],
+    colors: ['#9ae6b4', '#38a169', '#68d391', '#2f855a', '#48bb78'],
     borderRadius: 5,
-    padding: 0.3
+    padding: 0.1,
+    tooltip: true,
+    transitions: true
   };
-  data: BarChartData[];
+  data: BarChartData;
 
   constructor(private dataService: DataService) {
-    this.data = [
-      'Gray',
-      'Red',
-      'Orange',
-      'Yellow',
-      'Green',
-      'Teal',
-      'Blue',
-      'Indigo',
-      'Purple',
-      'Pink',
-      'Black',
-      'White',
-      'Cyan',
-      'Magenta'
-    ].map(color => ({ id: color, y: this.dataService.randomInt(10000, 22000) }));
+    this.data = this.generateBarData();
   }
 
   ngOnInit(): void {}
+
+  private generateBarData(): BarChartData {
+    const cat = ['Student', 'Liberal Profession', 'Salaried Stuff', 'Employee', 'E1', 'E2', 'E3', 'E4'];
+    const id = ['Not at all', 'Not very much'];
+
+    return [...cat].map(c => {
+      return { category: c, values: [...id].map(i => ({ id: i, value: this.dataService.randomInt(10, 50) })) };
+    });
+  }
 }

@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, OnDestroy, SimpleChanges, OnChanges, ElementRef } from '@angular/core';
 import { defaultOptions, mergeOptions, BarChartOptions, BarChartData } from './bar-chart.interface';
-import { Selection, select } from 'd3-selection';
-import { ScaleBand, ScaleLinear, scaleBand, scaleLinear } from 'd3-scale';
+import { Selection, select, mouse } from 'd3-selection';
+import { ScaleBand, ScaleLinear, scaleBand, scaleLinear, scaleOrdinal } from 'd3-scale';
 import { Axis, AxisScale, AxisDomain, axisBottom, axisLeft } from 'd3-axis';
 import { min, max } from 'd3-array';
 import { ResizeService } from '../shared/resize.service';
@@ -14,17 +14,19 @@ import { Subscription } from 'rxjs';
 })
 export class BarChartComponent implements OnInit, OnChanges, OnDestroy {
   @Input() options: BarChartOptions = defaultOptions();
-  @Input() data: BarChartData[] = [];
+  @Input() data: BarChartData = [];
 
   el!: HTMLElement;
   width!: number;
   height!: number;
-  x!: ScaleBand<string> | ScaleLinear<number, number>;
+  x0!: ScaleBand<string>;
+  x1!: ScaleBand<string>;
   y!: ScaleBand<string> | ScaleLinear<number, number>;
   svg!: Selection<SVGSVGElement, unknown, null, undefined>;
   g!: Selection<SVGGElement, unknown, null, undefined>;
   xAxis!: Selection<SVGGElement, unknown, null, undefined>;
   yAxis!: Selection<SVGGElement, unknown, null, undefined>;
+  tooltip!: Selection<HTMLDivElement, unknown, null, undefined>;
   sub: Subscription = new Subscription();
 
   constructor(private elementRef: ElementRef, private resizeService: ResizeService) {}
@@ -54,6 +56,19 @@ export class BarChartComponent implements OnInit, OnChanges, OnDestroy {
     this.el = this.elementRef.nativeElement.querySelector('.bar-chart');
     this.svg = select(this.el).append('svg');
     this.g = this.svg.append('g');
+    this.tooltip = select(this.el)
+      .append('div')
+      .attr('class', 'tooltip')
+      .style('opacity', 0)
+      .style('position', 'absolute')
+      .style('background', '#fff')
+      .style('border', '1px solid #E1E8EB')
+      .style('border-radius', '4px')
+      .style('min-width', '180px')
+      .style('text-align', 'center')
+      .style('font-size', '13px')
+      .style('color', '#4E5859')
+      .style('padding', '10px 15px');
     this.drawChart();
   }
 
@@ -61,18 +76,53 @@ export class BarChartComponent implements OnInit, OnChanges, OnDestroy {
     this.setDimensions();
     this.setDomains();
     this.drawAxes();
-    this.g
-      .selectAll('.bar')
+
+    const color = scaleOrdinal().range(this.options.colors);
+    const that = this;
+
+    const e = this.g.append('g');
+    const r = e
+      .selectAll('g')
       .data(this.data)
-      .enter()
-      .append('rect')
-      .attr('class', 'bar')
-      .attr('x', (d: any) => this.x(d.id))
-      .attr('width', (this.x as any).bandwidth())
-      .attr('y', (d: any) => this.y(d.y))
-      .attr('height', (d: any) => this.height - this.y(d.y))
+      .join('g')
+      .attr('transform', (d: any) => `translate(${this.x0(d.category)}, 0)`)
+      .selectAll('rect')
+      .data(d => d.values.map((v: any) => ({ id: v.id, value: v.value })))
+      .join('rect')
+      .attr('x', d => this.x1(d.id))
+      .attr('y', d => this.y(0 as any))
+      .attr('width', this.x1.bandwidth())
+      // .attr('height', d => this.y(0 as any) - this.y(d.value))
       .attr('rx', this.options.borderRadius)
-      .style('fill', this.options.colors[0]);
+      .attr('fill', d => color(d.id) as any);
+
+    if (this.options.transitions) {
+      e.selectAll('rect')
+        .transition()
+        .delay(() => Math.random() * 1000)
+        .duration(1000)
+        .attr('y', (d: any) => this.y(d.value))
+        .attr('height', (d: any) => this.y(0 as any) - this.y(d.value));
+    } else {
+      e.selectAll('rect')
+        .attr('y', (d: any) => this.y(d.value))
+        .attr('height', (d: any) => this.y(0 as any) - this.y(d.value));
+    }
+
+    if (this.options.tooltip) {
+      r
+        // tslint:disable-next-line
+        .on('mouseover', function (d: any) {
+          that.tooltip.style('opacity', 1).html('<p>' + d.id + ': <b>' + d.value + '</b></p>');
+        })
+        // tslint:disable-next-line
+        .on('mousemove', function (d: any) {
+          const t = this as any;
+          const m = mouse(t.parentNode.parentNode as any);
+          that.tooltip.style('left', m[0] + 60 + 'px').style('top', m[1] - 20 + 'px');
+        })
+        .on('mouseleave', (d: any) => this.tooltip.style('opacity', 0));
+    }
   }
 
   private redrawChart(): void {
@@ -81,12 +131,18 @@ export class BarChartComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private setDomains(): void {
-    this.x = scaleBand().range([0, this.width]).padding(this.options.padding);
+    this.x0 = scaleBand()
+      .domain(this.data.map(d => d.category))
+      .rangeRound([0, this.width]);
+
+    this.x1 = scaleBand()
+      .domain(this.data[0].values.map(d => d.id))
+      .rangeRound([0, this.x0.bandwidth()])
+      .padding(this.options.padding);
+
     this.y = scaleLinear().range([this.height, 0]);
 
-    this.x.domain(this.data.map(d => d.id));
-
-    const values = this.data.map(d => d.y);
+    const values = this.data.reduce((acc, curr) => acc.concat(curr.values.map(v => v.value)), []);
     const [minv, maxv] = [Number(min(values as any)), Number(max(values as any))];
     const factor = (maxv - minv) * 0.05;
     const [ymin, ymax] = [
@@ -124,7 +180,7 @@ export class BarChartComponent implements OnInit, OnChanges, OnDestroy {
         .tickFormat(
           typeof this.options.yGrid.tickFormat === 'function' ? (this.options.yGrid.tickFormat as any) : null
         ),
-      x: axisBottom(this.x as AxisScale<AxisDomain>)
+      x: axisBottom(this.x0 as AxisScale<AxisDomain>)
         .tickSizeInner(-this.height)
         .tickSizeOuter(0)
         .tickPadding(this.options.xGrid.tickPadding)

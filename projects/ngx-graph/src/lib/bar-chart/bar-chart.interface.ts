@@ -2,7 +2,7 @@ const DEFAULT_GRID_COLOR = '#EDEDEE';
 const DEFAULT_GRID_TEXT_COLOR = '#CBCBCB';
 
 export type BarDataType = string | number | Date;
-export type BarChartData = { id?: string; x?: BarDataType; y: BarDataType };
+export type BarChartData = { category: string; values: { id: string; value: number }[] }[];
 
 export interface BarChartGridOptions {
   type?: 'linear' | 'time' | 'band';
@@ -34,6 +34,8 @@ export interface BarChartOptions {
   colors?: string[];
   borderRadius?: number;
   padding?: number;
+  tooltip?: boolean;
+  transitions?: boolean;
 }
 
 export function mergeOptions(o: BarChartOptions): BarChartOptions {
@@ -42,7 +44,7 @@ export function mergeOptions(o: BarChartOptions): BarChartOptions {
   opts.margin = { ...defaultOpts.margin, ...(o.margin || {}) };
   opts.xGrid = { ...defaultOpts.xGrid, ...(o.xGrid || {}) };
   opts.yGrid = { ...defaultOpts.yGrid, ...(o.yGrid || {}) };
-  opts.colors = { ...defaultOpts.colors, ...(o.colors || []) };
+  opts.colors = o.colors && o.colors.length ? o.colors : defaultOpts.colors;
 
   return opts;
 }
@@ -99,6 +101,8 @@ export function defaultOptions(): BarChartOptions {
       '#38b2ac'
     ],
     borderRadius: 4,
-    padding: 0.1
+    padding: 0.1,
+    tooltip: true,
+    transitions: true
   };
 }
