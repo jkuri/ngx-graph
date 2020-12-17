@@ -73,6 +73,10 @@ export class BarChartComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private drawChart(): void {
+    if (!this.data || !this.data.length) {
+      return;
+    }
+
     this.setDimensions();
     this.setDomains();
     this.drawAxes();
@@ -113,13 +117,15 @@ export class BarChartComponent implements OnInit, OnChanges, OnDestroy {
       r
         // tslint:disable-next-line
         .on('mouseover', function (d: any) {
-          that.tooltip.style('opacity', 1).html('<p>' + d.id + ': <b>' + d.value + '</b></p>');
+          const t = this as any;
+          const cat = (select(t.parentNode).datum() as any).category;
+          that.tooltip.style('opacity', 1).html('<p><h2>' + cat + '</h2>' + d.id + ': <b>' + d.value + '</b></p>');
         })
         // tslint:disable-next-line
         .on('mousemove', function (d: any) {
           const t = this as any;
           const m = mouse(t.parentNode.parentNode as any);
-          that.tooltip.style('left', m[0] + 60 + 'px').style('top', m[1] - 20 + 'px');
+          that.tooltip.style('left', m[0] + 70 + 'px').style('top', m[1] - 70 + 'px');
         })
         .on('mouseleave', (d: any) => this.tooltip.style('opacity', 0));
     }

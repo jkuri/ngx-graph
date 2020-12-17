@@ -27,7 +27,7 @@ export class DemoBarChartComponent implements OnInit {
     tooltip: true,
     transitions: true
   };
-  data: BarChartData;
+  data: BarChartData = [];
 
   constructor(private dataService: DataService) {
     this.data = this.generateBarData();
