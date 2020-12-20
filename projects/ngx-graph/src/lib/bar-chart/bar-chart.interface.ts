@@ -26,6 +26,7 @@ export interface BarChartGridOptions {
 }
 
 export interface BarChartOptions {
+  mode?: 'grouped' | 'stacked';
   width?: number;
   height?: number;
   margin?: { top?: number; right?: number; bottom?: number; left?: number };
@@ -51,6 +52,7 @@ export function mergeOptions(o: BarChartOptions): BarChartOptions {
 
 export function defaultOptions(): BarChartOptions {
   return {
+    mode: 'grouped',
     margin: { top: 20, right: 20, bottom: 20, left: 50 },
     xGrid: {
       type: 'band',

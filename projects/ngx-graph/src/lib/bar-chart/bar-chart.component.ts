@@ -4,6 +4,7 @@ import { Selection, select, mouse } from 'd3-selection';
 import { ScaleBand, ScaleLinear, scaleBand, scaleLinear, scaleOrdinal } from 'd3-scale';
 import { Axis, AxisScale, AxisDomain, axisBottom, axisLeft } from 'd3-axis';
 import { min, max } from 'd3-array';
+import { Series, stack } from 'd3-shape';
 import { ResizeService } from '../shared/resize.service';
 import { Subscription } from 'rxjs';
 
@@ -28,6 +29,11 @@ export class BarChartComponent implements OnInit, OnChanges, OnDestroy {
   yAxis!: Selection<SVGGElement, unknown, null, undefined>;
   tooltip!: Selection<HTMLDivElement, unknown, null, undefined>;
   sub: Subscription = new Subscription();
+
+  x!: ScaleBand<string>;
+  keys: string[] = [];
+  stackedData: any[] = [];
+  series: Series<{ [key: string]: number }, string>[] = [];
 
   constructor(private elementRef: ElementRef, private resizeService: ResizeService) {}
 
@@ -78,56 +84,126 @@ export class BarChartComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     this.setDimensions();
-    this.setDomains();
-    this.drawAxes();
 
-    const color = scaleOrdinal().range(this.options.colors);
     const that = this;
 
-    const e = this.g.append('g');
-    const r = e
-      .selectAll('g')
-      .data(this.data)
-      .join('g')
-      .attr('transform', (d: any) => `translate(${this.x0(d.category)}, 0)`)
-      .selectAll('rect')
-      .data(d => d.values.map((v: any) => ({ id: v.id, value: v.value })))
-      .join('rect')
-      .attr('x', d => this.x1(d.id))
-      .attr('y', d => this.y(0 as any))
-      .attr('width', this.x1.bandwidth())
-      // .attr('height', d => this.y(0 as any) - this.y(d.value))
-      .attr('rx', this.options.borderRadius)
-      .attr('fill', d => color(d.id) as any);
+    if (this.options.mode === 'stacked') {
+      this.stackedData = this.data.map(d => {
+        const o: any = { name: d.category, total: 0 };
+        d.values.forEach(v => {
+          if (!this.keys.includes(v.id)) {
+            this.keys.push(v.id);
+          }
+          o[v.id] = v.value;
+          o.total += v.value;
+        });
+        return o;
+      });
 
-    if (this.options.transitions) {
-      e.selectAll('rect')
-        .transition()
-        .delay(() => Math.random() * 1000)
-        .duration(1000)
-        .attr('y', (d: any) => this.y(d.value))
-        .attr('height', (d: any) => this.y(0 as any) - this.y(d.value));
-    } else {
-      e.selectAll('rect')
-        .attr('y', (d: any) => this.y(d.value))
-        .attr('height', (d: any) => this.y(0 as any) - this.y(d.value));
+      this.series = stack()
+        .keys(this.keys)(this.stackedData)
+        .map(d => (d.forEach((v: any) => (v.key = d.key)), d));
+
+      const color = scaleOrdinal()
+        .domain(this.series.map(d => d.key))
+        .range(this.options.colors);
+
+      this.drawAxes();
+
+      const e = this.g.append('g');
+      const r = e
+        .selectAll('g')
+        .data(this.series)
+        .join('g')
+        .attr('fill', (d: any) => color(d.key) as any)
+        .selectAll('rect')
+        .data(d => d)
+        .join('rect')
+        .attr('x', (d: any) => this.x(d.data.name))
+        .attr('y', () => this.y(0 as any))
+        .attr('width', this.x.bandwidth());
+
+      if (this.options.transitions) {
+        e.selectAll('rect')
+          .transition()
+          .delay(500)
+          .duration(1000)
+          .attr('y', (d: any) => this.y(d[1]))
+          .attr('height', (d: any) => this.y(d[0]) - this.y(d[1]));
+      } else {
+        e.selectAll('rect')
+          .attr('y', (d: any) => this.y(d[1]))
+          .attr('height', (d: any) => this.y(d[0]) - this.y(d[1]));
+      }
+
+      if (this.options.tooltip) {
+        r
+          // tslint:disable-next-line
+          .on('mouseover', function (d: any) {
+            const t = this as any;
+            const key = d.key;
+            const value = d.data[key];
+            that.tooltip.style('opacity', 1).html('<p>' + key + ': <b>' + value + '</b></p>');
+          })
+          // tslint:disable-next-line
+          .on('mousemove', function (d: any) {
+            const t = this as any;
+            const m = mouse(t.parentNode.parentNode as any);
+            that.tooltip.style('left', m[0] + 70 + 'px').style('top', m[1] - 70 + 'px');
+          })
+          .on('mouseleave', (d: any) => this.tooltip.style('opacity', 0));
+      }
     }
 
-    if (this.options.tooltip) {
-      r
-        // tslint:disable-next-line
-        .on('mouseover', function (d: any) {
-          const t = this as any;
-          const cat = (select(t.parentNode).datum() as any).category;
-          that.tooltip.style('opacity', 1).html('<p><h2>' + cat + '</h2>' + d.id + ': <b>' + d.value + '</b></p>');
-        })
-        // tslint:disable-next-line
-        .on('mousemove', function (d: any) {
-          const t = this as any;
-          const m = mouse(t.parentNode.parentNode as any);
-          that.tooltip.style('left', m[0] + 70 + 'px').style('top', m[1] - 70 + 'px');
-        })
-        .on('mouseleave', (d: any) => this.tooltip.style('opacity', 0));
+    if (this.options.mode === 'grouped') {
+      const color = scaleOrdinal().range(this.options.colors);
+
+      this.drawAxes();
+
+      const e = this.g.append('g');
+      const r = e
+        .selectAll('g')
+        .data(this.data)
+        .join('g')
+        .attr('transform', (d: any) => `translate(${this.x0(d.category)}, 0)`)
+        .selectAll('rect')
+        .data(d => d.values.map((v: any) => ({ id: v.id, value: v.value })))
+        .join('rect')
+        .attr('x', d => this.x1(d.id))
+        .attr('y', () => this.y(0 as any))
+        .attr('width', this.x1.bandwidth())
+        .attr('rx', this.options.borderRadius)
+        .attr('fill', d => color(d.id) as any);
+
+      if (this.options.transitions) {
+        e.selectAll('rect')
+          .transition()
+          .delay(() => Math.random() * 1000)
+          .duration(1000)
+          .attr('y', (d: any) => this.y(d.value))
+          .attr('height', (d: any) => this.y(0 as any) - this.y(d.value));
+      } else {
+        e.selectAll('rect')
+          .attr('y', (d: any) => this.y(d.value))
+          .attr('height', (d: any) => this.y(0 as any) - this.y(d.value));
+      }
+
+      if (this.options.tooltip) {
+        r
+          // tslint:disable-next-line
+          .on('mouseover', function (d: any) {
+            const t = this as any;
+            const cat = (select(t.parentNode).datum() as any).category;
+            that.tooltip.style('opacity', 1).html('<p><h2>' + cat + '</h2>' + d.id + ': <b>' + d.value + '</b></p>');
+          })
+          // tslint:disable-next-line
+          .on('mousemove', function (d: any) {
+            const t = this as any;
+            const m = mouse(t.parentNode.parentNode as any);
+            that.tooltip.style('left', m[0] + 70 + 'px').style('top', m[1] - 70 + 'px');
+          })
+          .on('mouseleave', (d: any) => this.tooltip.style('opacity', 0));
+      }
     }
   }
 
@@ -137,6 +213,13 @@ export class BarChartComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private setDomains(): void {
+    if (this.options.mode === 'stacked') {
+      this.x = scaleBand()
+        .domain(this.stackedData.map(d => d.name))
+        .rangeRound([0, this.width])
+        .padding(0.1);
+    }
+
     this.x0 = scaleBand()
       .domain(this.data.map(d => d.category))
       .rangeRound([0, this.width]);
@@ -146,22 +229,27 @@ export class BarChartComponent implements OnInit, OnChanges, OnDestroy {
       .rangeRound([0, this.x0.bandwidth()])
       .padding(this.options.padding);
 
-    this.y = scaleLinear().range([this.height, 0]);
-
-    const values = this.data.reduce((acc, curr) => acc.concat(curr.values.map(v => v.value)), []);
-    const [minv, maxv] = [Number(min(values as any)), Number(max(values as any))];
-    const factor = (maxv - minv) * 0.05;
-    const [ymin, ymax] = [
-      this.options.yGrid.min === 'auto' ? Number(minv) - factor : this.options.yGrid.min,
-      this.options.yGrid.max === 'auto' ? Number(maxv) + factor : this.options.yGrid.max
-    ];
-    this.y.domain([ymin as number | { valueOf(): number }, ymax as number | { valueOf(): number }]);
+    if (this.options.mode === 'grouped') {
+      this.y = scaleLinear().range([this.height, 0]);
+      const values = this.data.reduce((acc, curr) => acc.concat(curr.values.map(v => v.value)), []);
+      const [minv, maxv] = [Number(min(values as any)), Number(max(values as any))];
+      const factor = (maxv - minv) * 0.05;
+      const [ymin, ymax] = [
+        this.options.yGrid.min === 'auto' ? Number(minv) - factor : this.options.yGrid.min,
+        this.options.yGrid.max === 'auto' ? Number(maxv) + factor : this.options.yGrid.max
+      ];
+      this.y.domain([ymin as number | { valueOf(): number }, ymax as number | { valueOf(): number }]);
+    } else if (this.options.mode === 'stacked') {
+      this.y = scaleLinear()
+        .domain([0, max(this.series, d => max(d, j => j[1]))])
+        .rangeRound([this.height, 0]);
+    }
   }
 
   private drawAxes(): void {
     this.setDomains();
 
-    const { y, x } = this.getAxesData();
+    const { y, x } = this.options.mode === 'grouped' ? this.getAxesData() : this.getAxesDataStacked();
 
     if (this.options.xGrid.enable) {
       this.xAxis = this.g.append('g').attr('class', 'x axis').call(x).attr('transform', `translate(0, ${this.height})`);
@@ -187,6 +275,26 @@ export class BarChartComponent implements OnInit, OnChanges, OnDestroy {
           typeof this.options.yGrid.tickFormat === 'function' ? (this.options.yGrid.tickFormat as any) : null
         ),
       x: axisBottom(this.x0 as AxisScale<AxisDomain>)
+        .tickSizeInner(-this.height)
+        .tickSizeOuter(0)
+        .tickPadding(this.options.xGrid.tickPadding)
+        .ticks(this.options.xGrid.tickNumber, this.options.xGrid.tickFormat)
+    };
+  }
+
+  private getAxesDataStacked(): { y: Axis<AxisDomain>; x: Axis<AxisDomain> } {
+    return {
+      y: axisLeft(this.y as AxisScale<AxisDomain>)
+        .tickSize(-this.width)
+        .tickPadding(this.options.yGrid.tickPadding)
+        .ticks(
+          this.options.yGrid.tickNumber,
+          typeof this.options.yGrid.tickFormat !== 'function' ? this.options.yGrid.tickFormat : null
+        )
+        .tickFormat(
+          typeof this.options.yGrid.tickFormat === 'function' ? (this.options.yGrid.tickFormat as any) : null
+        ),
+      x: axisBottom(this.x as AxisScale<AxisDomain>)
         .tickSizeInner(-this.height)
         .tickSizeOuter(0)
         .tickPadding(this.options.xGrid.tickPadding)
