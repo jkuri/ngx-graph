@@ -24,7 +24,7 @@ export class DemoBarChartComponent implements OnInit {
     xGrid: { tickPadding: 10, tickFontSize: 11, color: '#ffffff', tickFontWeight: 600 },
     colors: ['#9ae6b4', '#38a169', '#68d391', '#2f855a', '#48bb78'],
     borderRadius: 5,
-    padding: 0.1,
+    padding: 0.3,
     tooltip: true,
     transitions: true
   };

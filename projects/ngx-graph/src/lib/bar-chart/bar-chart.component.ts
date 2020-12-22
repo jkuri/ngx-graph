@@ -217,7 +217,7 @@ export class BarChartComponent implements OnInit, OnChanges, OnDestroy {
       this.x = scaleBand()
         .domain(this.stackedData.map(d => d.name))
         .rangeRound([0, this.width])
-        .padding(0.1);
+        .padding(this.options.padding);
     }
 
     this.x0 = scaleBand()
