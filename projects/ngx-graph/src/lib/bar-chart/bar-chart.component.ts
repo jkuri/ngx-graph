@@ -7,7 +7,6 @@ import { min, max } from 'd3-array';
 import { Series, stack } from 'd3-shape';
 import { ResizeService } from '../shared/resize.service';
 import { Subscription } from 'rxjs';
-import { Colors } from 'dist/ngx-graph/lib/shared/color';
 
 @Component({
   selector: 'ngx-bar-chart',
