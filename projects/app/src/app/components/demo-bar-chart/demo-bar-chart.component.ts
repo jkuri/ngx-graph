@@ -62,7 +62,7 @@ export class DemoBarChartComponent implements OnInit {
       'E19',
       'E20'
     ];
-    const id = ['Not at all', 'Not very much'];
+    const id = ['Not at all', 'Not very much', 'Very Much'];
 
     return [...cat].map(c => {
       return { category: c, values: [...id].map(i => ({ id: i, value: this.dataService.randomInt(10, 50) })) };

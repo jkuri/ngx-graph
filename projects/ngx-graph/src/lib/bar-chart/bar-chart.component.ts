@@ -85,152 +85,167 @@ export class BarChartComponent implements OnInit, OnChanges, OnDestroy {
 
     this.setDimensions();
 
+    if (this.options.mode === 'stacked') {
+      this.drawStackedChart();
+    } else if (this.options.mode === 'grouped') {
+      this.drawGroupedChart();
+    }
+  }
+
+  private drawStackedChart(): void {
     const that = this;
 
-    if (this.options.mode === 'stacked') {
-      this.stackedData = this.data.map(d => {
-        const o: any = { name: d.category, total: 0 };
-        d.values.forEach(v => {
-          if (!this.keys.includes(v.id)) {
-            this.keys.push(v.id);
-          }
-          o[v.id] = v.value;
-          o.total += v.value;
-        });
-        return o;
+    this.stackedData = this.data.map(d => {
+      const o: any = { name: d.category, total: 0 };
+      d.values.forEach(v => {
+        if (!this.keys.includes(v.id)) {
+          this.keys.push(v.id);
+        }
+        o[v.id] = v.value;
+        o.total += v.value;
       });
+      return o;
+    });
 
-      this.series = stack()
-        .keys(this.keys)(this.stackedData)
-        .map(d => (d.forEach((v: any) => (v.key = d.key)), d));
+    this.series = stack()
+      .keys(this.keys)(this.stackedData)
+      .map(d => (d.forEach((v: any) => (v.key = d.key)), d));
 
-      const color = scaleOrdinal()
-        .domain(this.series.map(d => d.key))
-        .range(this.options.colors);
+    const color = scaleOrdinal()
+      .domain(this.series.map(d => d.key))
+      .range(this.options.colors);
 
-      this.drawAxes();
+    this.drawAxes();
 
-      const e = this.g.append('g');
-      const r = e
-        .selectAll('g')
-        .data(this.series)
-        .join('g')
-        .attr('fill', (d: any) => color(d.key) as any)
-        .selectAll('rect')
-        .data(d => d)
-        .join('rect')
-        .attr('x', (d: any) => this.x(d.data.name))
-        .attr('y', () => this.y(0 as any))
-        .attr('width', this.x.bandwidth());
+    const e = this.g.append('g');
+    const r = e
+      .selectAll('g')
+      .data(this.series)
+      .join('g')
+      .attr('fill', (d: any) => color(d.key) as any)
+      .selectAll('rect')
+      .data(d => d)
+      .join('rect')
+      .attr('x', (d: any) => this.x(d.data.name))
+      .attr('y', () => this.y(0 as any))
+      .attr('width', this.x.bandwidth());
 
-      if (this.options.transitions) {
-        e.selectAll('rect')
-          .transition()
-          .delay(500)
-          .duration(1000)
-          .attr('y', (d: any) => this.y(d[1]))
-          .attr('height', (d: any) => this.y(d[0]) - this.y(d[1]));
-      } else {
-        e.selectAll('rect')
-          .attr('y', (d: any) => this.y(d[1]))
-          .attr('height', (d: any) => this.y(d[0]) - this.y(d[1]));
-      }
-
-      if (this.options.tooltip) {
-        r
-          // tslint:disable-next-line
-          .on('mouseover', function (d: any) {
-            const t = this as any;
-            const key = d.key;
-            const value = d.data[key];
-            that.tooltip.style('opacity', 1).html('<p>' + key + ': <b>' + value + '</b></p>');
-          })
-          // tslint:disable-next-line
-          .on('mousemove', function (d: any) {
-            const t = this as any;
-            const m = mouse(t.parentNode.parentNode as any);
-            that.tooltip.style('left', m[0] + 70 + 'px').style('top', m[1] - 70 + 'px');
-          })
-          .on('mouseleave', (d: any) => this.tooltip.style('opacity', 0));
-      }
-
-      if (this.options.legend) {
-        const legend = this.g
-          .selectAll('.legend')
-          .data(this.keys)
-          .enter()
-          .append('g')
-          .attr('class', 'legend')
-          .attr('transform', (_, i) => `translate(0, ${i * 20})`);
-
-        legend
-          .append('rect')
-          .attr('x', this.width + 18)
-          .attr('width', 18)
-          .attr('height', 18)
-          .style('fill', (_, i) => this.options.colors[i]);
-
-        legend
-          .append('text')
-          .attr('x', this.width + 43)
-          .attr('y', 14)
-          .style('text-anchor', 'start')
-          .style('font-size', this.options.legendFontSize)
-          .style('font-weight', this.options.legendFontWeight)
-          .style('fill', this.options.legendFontColor)
-          .text(d => d);
-      }
+    if (this.options.transitions) {
+      e.selectAll('rect')
+        .transition()
+        .delay(500)
+        .duration(1000)
+        .attr('y', (d: any) => this.y(d[1]))
+        .attr('height', (d: any) => this.y(d[0]) - this.y(d[1]));
+    } else {
+      e.selectAll('rect')
+        .attr('y', (d: any) => this.y(d[1]))
+        .attr('height', (d: any) => this.y(d[0]) - this.y(d[1]));
     }
 
-    if (this.options.mode === 'grouped') {
-      const color = scaleOrdinal().range(this.options.colors);
+    if (this.options.tooltip) {
+      r
+        // tslint:disable-next-line
+        .on('mouseover', function (d: any) {
+          const t = this as any;
+          const key = d.key;
+          const value = d.data[key];
+          that.tooltip.style('opacity', 1).html('<p>' + key + ': <b>' + value + '</b></p>');
+        })
+        // tslint:disable-next-line
+        .on('mousemove', function (d: any) {
+          const t = this as any;
+          const m = mouse(t.parentNode.parentNode as any);
+          that.tooltip.style('left', m[0] + 70 + 'px').style('top', m[1] - 70 + 'px');
+        })
+        .on('mouseleave', (d: any) => this.tooltip.style('opacity', 0));
+    }
 
-      this.drawAxes();
+    if (this.options.legend) {
+      const lc = this.g.append('g').attr('class', 'legend-container');
 
-      const e = this.g.append('g');
-      const r = e
-        .selectAll('g')
-        .data(this.data)
-        .join('g')
-        .attr('transform', (d: any) => `translate(${this.x0(d.category)}, 0)`)
-        .selectAll('rect')
-        .data(d => d.values.map((v: any) => ({ id: v.id, value: v.value })))
-        .join('rect')
-        .attr('x', d => this.x1(d.id))
-        .attr('y', () => this.y(0 as any))
-        .attr('width', this.x1.bandwidth())
-        .attr('rx', this.options.borderRadius)
-        .attr('fill', d => color(d.id) as any);
+      const legend = lc
+        .selectAll('.legend')
+        .data(this.keys)
+        .enter()
+        .append('g')
+        .attr('class', 'legend')
+        .attr('transform', (_, i) => `translate(0, ${i * 20})`);
 
-      if (this.options.transitions) {
-        e.selectAll('rect')
-          .transition()
-          .delay(() => Math.random() * 1000)
-          .duration(1000)
-          .attr('y', (d: any) => this.y(d.value))
-          .attr('height', (d: any) => this.y(0 as any) - this.y(d.value));
-      } else {
-        e.selectAll('rect')
-          .attr('y', (d: any) => this.y(d.value))
-          .attr('height', (d: any) => this.y(0 as any) - this.y(d.value));
-      }
+      legend
+        .append('rect')
+        .attr('x', this.width + 18)
+        .attr('width', 18)
+        .attr('height', 18)
+        .attr('rx', 4)
+        .style('fill', (_, i) => this.options.colors[i]);
 
-      if (this.options.tooltip) {
-        r
-          // tslint:disable-next-line
-          .on('mouseover', function (d: any) {
-            const t = this as any;
-            const cat = (select(t.parentNode).datum() as any).category;
-            that.tooltip.style('opacity', 1).html('<p><h2>' + cat + '</h2>' + d.id + ': <b>' + d.value + '</b></p>');
-          })
-          // tslint:disable-next-line
-          .on('mousemove', function (d: any) {
-            const t = this as any;
-            const m = mouse(t.parentNode.parentNode as any);
-            that.tooltip.style('left', m[0] + 70 + 'px').style('top', m[1] - 70 + 'px');
-          })
-          .on('mouseleave', (d: any) => this.tooltip.style('opacity', 0));
-      }
+      legend
+        .append('text')
+        .attr('x', this.width + 43)
+        .attr('y', 14)
+        .style('text-anchor', 'start')
+        .style('font-size', this.options.legendFontSize)
+        .style('font-weight', this.options.legendFontWeight)
+        .style('fill', this.options.legendFontColor)
+        .text(d => d);
+
+      lc.style('transform', () => {
+        const d = this.options.margin.top + this.options.margin.bottom + lc.node().getBBox().height / 2;
+        return `translate(0, ${(this.height - d) / 2}px)`;
+      });
+    }
+  }
+
+  private drawGroupedChart(): void {
+    const that = this;
+    const color = scaleOrdinal().range(this.options.colors);
+
+    this.drawAxes();
+
+    const e = this.g.append('g');
+    const r = e
+      .selectAll('g')
+      .data(this.data)
+      .join('g')
+      .attr('transform', (d: any) => `translate(${this.x0(d.category)}, 0)`)
+      .selectAll('rect')
+      .data(d => d.values.map((v: any) => ({ id: v.id, value: v.value })))
+      .join('rect')
+      .attr('x', d => this.x1(d.id))
+      .attr('y', () => this.y(0 as any))
+      .attr('width', this.x1.bandwidth())
+      .attr('rx', this.options.borderRadius)
+      .attr('fill', d => color(d.id) as any);
+
+    if (this.options.transitions) {
+      e.selectAll('rect')
+        .transition()
+        .delay(() => Math.random() * 1000)
+        .duration(1000)
+        .attr('y', (d: any) => this.y(d.value))
+        .attr('height', (d: any) => this.y(0 as any) - this.y(d.value));
+    } else {
+      e.selectAll('rect')
+        .attr('y', (d: any) => this.y(d.value))
+        .attr('height', (d: any) => this.y(0 as any) - this.y(d.value));
+    }
+
+    if (this.options.tooltip) {
+      r
+        // tslint:disable-next-line
+        .on('mouseover', function (d: any) {
+          const t = this as any;
+          const cat = (select(t.parentNode).datum() as any).category;
+          that.tooltip.style('opacity', 1).html('<p><h2>' + cat + '</h2>' + d.id + ': <b>' + d.value + '</b></p>');
+        })
+        // tslint:disable-next-line
+        .on('mousemove', function (d: any) {
+          const t = this as any;
+          const m = mouse(t.parentNode.parentNode as any);
+          that.tooltip.style('left', m[0] + 70 + 'px').style('top', m[1] - 70 + 'px');
+        })
+        .on('mouseleave', (d: any) => this.tooltip.style('opacity', 0));
     }
   }
 
