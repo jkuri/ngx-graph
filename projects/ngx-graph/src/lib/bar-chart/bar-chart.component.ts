@@ -7,6 +7,7 @@ import { min, max } from 'd3-array';
 import { Series, stack } from 'd3-shape';
 import { ResizeService } from '../shared/resize.service';
 import { Subscription } from 'rxjs';
+import { Colors } from 'dist/ngx-graph/lib/shared/color';
 
 @Component({
   selector: 'ngx-bar-chart',
@@ -152,6 +153,32 @@ export class BarChartComponent implements OnInit, OnChanges, OnDestroy {
             that.tooltip.style('left', m[0] + 70 + 'px').style('top', m[1] - 70 + 'px');
           })
           .on('mouseleave', (d: any) => this.tooltip.style('opacity', 0));
+      }
+
+      if (this.options.legend) {
+        const legend = this.g
+          .selectAll('.legend')
+          .data(this.keys)
+          .enter()
+          .append('g')
+          .attr('class', 'legend')
+          .attr('transform', (_, i) => `translate(0, ${i * 20})`);
+
+        legend
+          .append('rect')
+          .attr('x', this.width + 18)
+          .attr('width', 18)
+          .attr('height', 18)
+          .style('fill', (_, i) => this.options.colors[i]);
+
+        legend
+          .append('text')
+          .attr('x', this.width + 43)
+          .attr('y', 14)
+          .style('text-anchor', 'start')
+          .style('font-size', this.options.legendFontSize)
+          .style('fill', this.options.legendFontColor)
+          .text(d => d);
       }
     }
 

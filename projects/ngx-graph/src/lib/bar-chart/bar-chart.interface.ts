@@ -37,6 +37,9 @@ export interface BarChartOptions {
   padding?: number;
   tooltip?: boolean;
   transitions?: boolean;
+  legend?: boolean;
+  legendFontColor?: string;
+  legendFontSize?: number;
 }
 
 export function mergeOptions(o: BarChartOptions): BarChartOptions {
@@ -105,6 +108,9 @@ export function defaultOptions(): BarChartOptions {
     borderRadius: 4,
     padding: 0.1,
     tooltip: true,
-    transitions: true
+    transitions: true,
+    legend: true,
+    legendFontColor: DEFAULT_GRID_TEXT_COLOR,
+    legendFontSize: 12
   };
 }
