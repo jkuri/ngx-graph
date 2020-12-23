@@ -177,6 +177,7 @@ export class BarChartComponent implements OnInit, OnChanges, OnDestroy {
           .attr('y', 14)
           .style('text-anchor', 'start')
           .style('font-size', this.options.legendFontSize)
+          .style('font-weight', this.options.legendFontWeight)
           .style('fill', this.options.legendFontColor)
           .text(d => d);
       }
@@ -326,6 +327,9 @@ export class BarChartComponent implements OnInit, OnChanges, OnDestroy {
         .tickSizeOuter(0)
         .tickPadding(this.options.xGrid.tickPadding)
         .ticks(this.options.xGrid.tickNumber, this.options.xGrid.tickFormat)
+        .tickValues(
+          this.options.xGrid.tickValues && this.options.xGrid.tickValues.length ? this.options.xGrid.tickValues : null
+        )
     };
   }
 

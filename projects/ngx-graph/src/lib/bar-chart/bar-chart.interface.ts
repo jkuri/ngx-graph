@@ -40,6 +40,7 @@ export interface BarChartOptions {
   legend?: boolean;
   legendFontColor?: string;
   legendFontSize?: number;
+  legendFontWeight?: 'normal' | 'bold' | 'bolder' | 'lighter' | number;
 }
 
 export function mergeOptions(o: BarChartOptions): BarChartOptions {
@@ -111,6 +112,7 @@ export function defaultOptions(): BarChartOptions {
     transitions: true,
     legend: true,
     legendFontColor: DEFAULT_GRID_TEXT_COLOR,
-    legendFontSize: 12
+    legendFontSize: 12,
+    legendFontWeight: 'normal'
   };
 }

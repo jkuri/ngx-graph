@@ -19,7 +19,8 @@ export class DemoBarChartComponent implements OnInit {
       tickFormat: (v: number | Date) => `€ ${v}`,
       tickPadding: 20,
       tickNumber: 6,
-      tickFontWeight: 600
+      tickFontWeight: 600,
+      dashed: true
     },
     xGrid: { tickPadding: 10, tickFontSize: 11, color: '#ffffff', tickFontWeight: 600 },
     colors: ['#9ae6b4', '#38a169', '#68d391', '#2f855a', '#48bb78'],
@@ -27,7 +28,8 @@ export class DemoBarChartComponent implements OnInit {
     padding: 0.2,
     tooltip: true,
     transitions: true,
-    legend: true
+    legend: true,
+    legendFontWeight: 600
   };
   data: BarChartData = [];
 
@@ -39,10 +41,6 @@ export class DemoBarChartComponent implements OnInit {
 
   private generateBarData(): BarChartData {
     const cat = [
-      'Student',
-      'Liberal Profession',
-      'Salaried Stuff',
-      'Employee',
       'E1',
       'E2',
       'E3',
