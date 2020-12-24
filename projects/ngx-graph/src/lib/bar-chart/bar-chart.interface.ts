@@ -41,6 +41,8 @@ export interface BarChartOptions {
   legendFontColor?: string;
   legendFontSize?: number;
   legendFontWeight?: 'normal' | 'bold' | 'bolder' | 'lighter' | number;
+  hoverEffect?: boolean;
+  hoverEffectColor?: string;
 }
 
 export function mergeOptions(o: BarChartOptions): BarChartOptions {
@@ -113,6 +115,8 @@ export function defaultOptions(): BarChartOptions {
     legend: true,
     legendFontColor: DEFAULT_GRID_TEXT_COLOR,
     legendFontSize: 12,
-    legendFontWeight: 'normal'
+    legendFontWeight: 'normal',
+    hoverEffect: true,
+    hoverEffectColor: '#333333'
   };
 }

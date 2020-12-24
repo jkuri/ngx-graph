@@ -65,7 +65,7 @@ export class BarChartComponent implements OnInit, OnChanges, OnDestroy {
     this.tooltip = select(this.el)
       .append('div')
       .attr('class', 'tooltip')
-      .style('opacity', 0)
+      .style('display', 'none')
       .style('position', 'absolute')
       .style('background', '#fff')
       .style('border', '1px solid #E1E8EB')
@@ -74,7 +74,7 @@ export class BarChartComponent implements OnInit, OnChanges, OnDestroy {
       .style('text-align', 'center')
       .style('font-size', '13px')
       .style('color', '#4E5859')
-      .style('padding', '10px 15px');
+      .style('padding', '5px 10px');
     this.drawChart();
   }
 
@@ -147,18 +147,29 @@ export class BarChartComponent implements OnInit, OnChanges, OnDestroy {
       r
         // tslint:disable-next-line
         .on('mouseover', function (d: any) {
-          const t = this as any;
           const key = d.key;
           const value = d.data[key];
-          that.tooltip.style('opacity', 1).html('<p>' + key + ': <b>' + value + '</b></p>');
+          const name = d.data.name;
+          that.tooltip.style('display', 'block').html('<p><h2>' + name + '</h2>' + key + ': <b>' + value + '</b></p>');
+          if (that.options.hoverEffect) {
+            const el = select(this);
+            el.style('fill', that.options.hoverEffectColor);
+          }
         })
         // tslint:disable-next-line
         .on('mousemove', function (d: any) {
           const t = this as any;
           const m = mouse(t.parentNode.parentNode as any);
-          that.tooltip.style('left', m[0] + 70 + 'px').style('top', m[1] - 70 + 'px');
+          that.tooltip.style('left', m[0] + 45 + 'px').style('top', m[1] - 45 + 'px');
         })
-        .on('mouseleave', (d: any) => this.tooltip.style('opacity', 0));
+        // tslint:disable-next-line
+        .on('mouseleave', function (d: any) {
+          that.tooltip.style('display', 'none');
+          if (that.options.hoverEffect) {
+            const el = select(this);
+            el.style('fill', color(d.key) as any);
+          }
+        });
     }
 
     if (this.options.legend) {
