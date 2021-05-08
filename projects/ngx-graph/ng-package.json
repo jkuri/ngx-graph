@@ -19,5 +19,5 @@
       "d3-scale": "d3-scale"
     }
   },
-  "whitelistedNonPeerDependencies": ["tslib", "d3", "d3-interpolate-path"]
+  "allowedNonPeerDependencies": ["tslib", "d3", "d3-interpolate-path"]
 }
