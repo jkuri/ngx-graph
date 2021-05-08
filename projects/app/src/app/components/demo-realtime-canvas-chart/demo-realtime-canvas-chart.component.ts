@@ -13,7 +13,7 @@ export class DemoRealtimeCanvasChartComponent implements OnInit {
   options: RealtimeCanvasChartOptions = {
     height: 200,
     margin: { left: 40, top: 10 },
-    fps: 24,
+    fps: 60,
     timeSlots: this.timeSlots,
     xGrid: {
       tickPadding: 15,
@@ -36,7 +36,7 @@ export class DemoRealtimeCanvasChartComponent implements OnInit {
       tickFontColor: '#718096',
       tickFontSize: 10
     },
-    lines: [{ color: '#FACF55', opacity: 1, area: true, areaColor: '#FACF55', areaOpacity: 0.6, curve: 'basis' }]
+    lines: [{ color: '#34B77C', opacity: 1, area: true, areaColor: '#34B77C', areaOpacity: 0.1, curve: 'basis' }]
   };
   data = [[]];
 

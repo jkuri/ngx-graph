@@ -81,6 +81,8 @@ export class RealtimeCanvasChartComponent implements OnInit, OnDestroy {
       .y0(this.height)
       .context(this.context);
 
+    this.drawAxes();
+
     this.interval = setInterval(() => this.drawChart(), 1000 / this.options.fps);
   }
 
@@ -91,9 +93,7 @@ export class RealtimeCanvasChartComponent implements OnInit, OnDestroy {
   }
 
   private drawChart(): void {
-    this.g.selectAll('*').remove();
-
-    this.drawAxes();
+    this.updateAxes();
 
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -177,6 +177,18 @@ export class RealtimeCanvasChartComponent implements OnInit, OnDestroy {
       this.yAxis = this.g.append('g').attr('class', 'y axis').call(y);
     }
 
+    this.styleAxes();
+  }
+
+  private updateAxes(): void {
+    this.setDomains();
+    const { y, x } = this.getAxesData();
+    if (this.options.xGrid.enable) {
+      this.xAxis.call(x).attr('transform', `translate(0, ${this.height})`);
+    }
+    if (this.options.yGrid.enable) {
+      this.yAxis.call(y);
+    }
     this.styleAxes();
   }
 
