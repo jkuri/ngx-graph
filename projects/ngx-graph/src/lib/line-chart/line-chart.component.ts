@@ -16,7 +16,7 @@ import { bisector } from 'd3-array';
 import { axisBottom, axisLeft, AxisScale } from 'd3-axis';
 import { easeLinear } from 'd3-ease';
 import { interpolatePath } from 'd3-interpolate-path';
-import { ContainerElement, mouse, select, Selection } from 'd3-selection';
+import { ContainerElement, pointer, select, Selection } from 'd3-selection';
 import { Area, Line } from 'd3-shape';
 import { transition } from 'd3-transition';
 import { Subscription } from 'rxjs';
@@ -112,10 +112,8 @@ export class LineChartComponent implements OnInit, OnDestroy, DoCheck {
         .pipe(
           filter(e => e.constructor.name === 'LineChartEventMouseMove'),
           distinctUntilChanged((p: LineChartEventMouseMove, c: LineChartEventMouseMove) => {
-            const [
-              { type: pmt, mouseX: pmx, mouseY: pmy, ...prev },
-              { type: cmt, mouseX: cmx, mouseY: cmy, ...curr }
-            ] = [p, c];
+            const [{ type: pmt, mouseX: pmx, mouseY: pmy, ...prev }, { type: cmt, mouseX: cmx, mouseY: cmy, ...curr }] =
+              [p, c];
             return JSON.stringify(prev) === JSON.stringify(curr);
           })
         )
@@ -496,11 +494,11 @@ export class LineChartComponent implements OnInit, OnDestroy, DoCheck {
       .on('mouseover', () => {
         this.setMouseEventsSelectors();
       })
-      .on('mousemove', (_, i, nodes) => {
-        this.mouseMove(nodes[i]);
-        this.onMouseMove(nodes[i]);
+      .on('mousemove', t => {
+        this.mouseMove(t);
+        this.onMouseMove(t);
       })
-      .on('click', (_, i, nodes) => this.onMouseClick(nodes[i]));
+      .on('click', t => this.onMouseClick(t));
 
     this.svg.on('mouseout', () => {
       this.setMouseEventsSelectors('none');
@@ -547,8 +545,8 @@ export class LineChartComponent implements OnInit, OnDestroy, DoCheck {
     }
   }
 
-  private getBisect(node: any, data: any): [number, number, number] {
-    const m = mouse(node);
+  private getBisect(node: SVGElement, data: any): [number, number, number] {
+    const m = pointer(node);
     const mx = (this.x as any).invert(m[0]);
     const b = bisector((dd: any) => dd.x).left;
     const i = b(data, mx, 1);
@@ -578,7 +576,7 @@ export class LineChartComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   private onMouseMove(node: SVGElement): void {
-    const [mouseX, mouseY] = mouse(node as ContainerElement);
+    const [mouseX, mouseY] = pointer(node as ContainerElement);
     const { x, y } = this.data.reduce(
       (acc, curr) => {
         const [, , j] = this.getBisect(node, curr.data);
@@ -613,19 +611,7 @@ export class LineChartComponent implements OnInit, OnDestroy, DoCheck {
 
     const tooltipEl = select(this.el).select('.tooltip-container');
 
-    tooltipEl
-      .on('mousemove', () => {
-        this.tooltip.visible = true;
-        this.mouseG.style('display', null);
-        this.crosshairG.style('display', null);
-        this.mouseMove(this.rect.node());
-        this.ref.detectChanges();
-      })
-      .on('click', () => this.onMouseClick(this.rect.node()))
-      .on('mouseout', () => {
-        this.tooltip.visible = false;
-        this.ref.detectChanges();
-      });
+    tooltipEl.style('pointer-events', 'none');
 
     let l = left + this.props.margin.left + 20;
     tooltipEl.style('left', `${l}px`).style('top', `${top}px`);

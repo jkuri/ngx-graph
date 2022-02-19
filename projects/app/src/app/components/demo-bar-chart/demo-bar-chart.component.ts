@@ -9,7 +9,7 @@ import { DataService } from '../../providers/data.service';
 })
 export class DemoBarChartComponent implements OnInit {
   options: BarChartOptions = {
-    mode: 'stacked',
+    mode: 'grouped',
     height: 300,
     margin: { top: 10, right: 130, bottom: 30, left: 40 },
     yGrid: {

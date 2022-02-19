@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, OnDestroy, SimpleChanges, OnChanges, ElementRef } from '@angular/core';
 import { defaultOptions, mergeOptions, BarChartOptions, BarChartData } from './bar-chart.interface';
-import { Selection, select, mouse } from 'd3-selection';
+import { Selection, select, pointer } from 'd3-selection';
 import { ScaleBand, ScaleLinear, scaleBand, scaleLinear, scaleOrdinal } from 'd3-scale';
 import { Axis, AxisScale, AxisDomain, axisBottom, axisLeft } from 'd3-axis';
 import { min, max } from 'd3-array';
@@ -144,30 +144,23 @@ export class BarChartComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     if (this.options.tooltip) {
-      r
-        // tslint:disable-next-line
-        .on('mouseover', function (d: any) {
-          const key = d.key;
-          const value = d.data[key];
-          const name = d.data.name;
-          that.tooltip.style('display', 'block').html('<p><h2>' + name + '</h2>' + key + ': <b>' + value + '</b></p>');
-          if (that.options.hoverEffect) {
-            const el = select(this);
-            el.style('fill', that.options.hoverEffectColor);
-          }
-        })
-        // tslint:disable-next-line
-        .on('mousemove', function (d: any) {
-          const t = this as any;
-          const m = mouse(t.parentNode.parentNode as any);
+      r.on('mouseover', (e, d) => {
+        const [key, value, name] = [d['key'], d.data[d['key']], d.data.name];
+        that.tooltip.style('display', 'block').html('<p><h2>' + name + '</h2>' + key + ': <b>' + value + '</b></p>');
+        if (that.options.hoverEffect) {
+          const el = select(e.target);
+          el.style('fill', that.options.hoverEffectColor);
+        }
+      })
+        .on('mousemove', (e, d) => {
+          const m = pointer(e);
           that.tooltip.style('left', m[0] + 45 + 'px').style('top', m[1] - 45 + 'px');
         })
-        // tslint:disable-next-line
-        .on('mouseleave', function (d: any) {
+        .on('mouseleave', (e, d) => {
           that.tooltip.style('display', 'none');
           if (that.options.hoverEffect) {
-            const el = select(this);
-            el.style('fill', color(d.key) as any);
+            const el = select(e.target);
+            el.style('fill', color(d['key']) as any);
           }
         });
     }
@@ -243,20 +236,17 @@ export class BarChartComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     if (this.options.tooltip) {
-      r
-        // tslint:disable-next-line
-        .on('mouseover', function (d: any) {
-          const t = this as any;
-          const cat = (select(t.parentNode).datum() as any).category;
-          that.tooltip.style('opacity', 1).html('<p><h2>' + cat + '</h2>' + d.id + ': <b>' + d.value + '</b></p>');
+      r.on('mouseover', (e, d) => {
+        const cat = (select(e.target.parentNode).datum() as any).category;
+        that.tooltip.style('display', 'block').html('<p><h2>' + cat + '</h2>' + d.id + ': <b>' + d.value + '</b></p>');
+      })
+        .on('mousemove', (e, d) => {
+          const m = pointer(e);
+          that.tooltip.style('left', e.pageX - 45 + 'px').style('top', m[1] - 70 + 'px');
         })
-        // tslint:disable-next-line
-        .on('mousemove', function (d: any) {
-          const t = this as any;
-          const m = mouse(t.parentNode.parentNode as any);
-          that.tooltip.style('left', m[0] + 70 + 'px').style('top', m[1] - 70 + 'px');
-        })
-        .on('mouseleave', (d: any) => this.tooltip.style('opacity', 0));
+        .on('mouseleave', () => {
+          that.tooltip.style('display', 'none');
+        });
     }
   }
 
