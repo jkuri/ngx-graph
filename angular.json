@@ -157,7 +157,6 @@
       }
     }
   },
-  "defaultProject": "ngx-graph",
   "schematics": {
     "@schematics/angular:component": {
       "style": "sass",
