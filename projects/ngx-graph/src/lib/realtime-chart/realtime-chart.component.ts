@@ -58,7 +58,7 @@ export class RealtimeChartComponent implements OnInit, OnChanges, OnDestroy {
   transition = transition(`${this.id}-transition`).duration(this.duration).ease(easeLinear);
   inited = false;
 
-  constructor(public elementRef: ElementRef, public resizeService: ResizeService, public eventManager: EventManager) {}
+  constructor(public elementRef: ElementRef, public resizeService: ResizeService, public eventManager: EventManager) { }
 
   ngOnInit() {
     this.initSettings();
@@ -70,7 +70,7 @@ export class RealtimeChartComponent implements OnInit, OnChanges, OnDestroy {
         this.updateData();
       })
     );
-    this.eventManager.addGlobalEventListener('document', 'visibilitychange', this.onVisibilityChange.bind(this));
+    this.eventManager.addEventListener(this.elementRef.nativeElement, 'visibilitychange', this.onVisibilityChange.bind(this));
 
     this.now = new Date(Date.now() - this.duration);
     this.updateData();
@@ -93,7 +93,7 @@ export class RealtimeChartComponent implements OnInit, OnChanges, OnDestroy {
 
     try {
       interrupt(this.transition.node(), `${this.id}-transition`);
-    } catch {}
+    } catch { }
   }
 
   private initChart(): void {
@@ -264,7 +264,7 @@ export class RealtimeChartComponent implements OnInit, OnChanges, OnDestroy {
           this.tick();
           this.inited = false;
         }, diff);
-      } catch {}
+      } catch { }
     }
   }
 
